@@ -3,7 +3,19 @@
 # Priprava prostredi - custom
 #
 
-# Dropbox
-cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86" | tar xzf -
-alias dropbox-start=~/.dropbox-dist/dropboxd
+# git
+sudo apt-get update
+sudo apt-get install git
 
+# create a new repository
+#echo "# graphtest" >> README.md
+#git init
+#git add README.md
+#git commit -m "first commit"
+#git config --global user.name "hapina"
+#git config --global user.email radka.karvankova@gmail.com
+#git commit --amend --reset-author
+
+# push an existing repository
+git remote add origin git@github.com:hapina/graphtest.git
+git push -u origin master
