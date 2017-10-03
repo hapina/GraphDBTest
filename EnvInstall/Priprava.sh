@@ -7,6 +7,11 @@
 sudo apt-get update
 sudo apt-get install git
 
+# key add to github
+#cd ~/.ssh
+#ssh-keygen
+
+
 # create a new repository
 #echo "# graphtest" >> README.md
 #git init

@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 #
 # Priprava prostredi - pip, komunikace s databazemi 
 #
@@ -12,6 +12,8 @@ python3 -m pip install psycopg2
 
 # xlrd - komunikace s excelem
 python3 -m pip install xlrd
+
+python3 -m pip install pyorient
 
 # Struktura pro metadata
 mkdir POSTGRES_METADATA
