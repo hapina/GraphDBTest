@@ -1,0 +1,6 @@
+tablename;columnname;type;optional
+experiments_types;e_id;Char(10);PRIMARY KEY
+experiments_types;e_name;Varchar(20);
+experiments_types;e_description;Varchar(50);
+experiments_types;e_configuration;Varchar(50);
+experiments_types;e_type;Varchar(10);
