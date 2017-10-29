@@ -1,7 +1,0 @@
-tablename;columnname;type;optional
-experiments_records;r_id;Char(10);PRIMARY KEY
-experiments_records;r_timestamp;timestamp;
-experiments_records;r_experiment_id;Char(10);
-experiments_records;r_database_id;Char(10);
-experiments_records;r_repetition;int;
-experiments_records;r_status;Varchar(50);
