@@ -14,13 +14,18 @@ sudo apt-get install git
 
 # create a new repository
 #echo "# graphtest" >> README.md
-#git init
+#git inits
 #git add README.md
 #git commit -m "first commit"
 #git config --global user.name "hapina"
-#git config --global user.email radka.karvankova@gmail.com
+#git config --global user.email email@gmail.com
 #git commit --amend --reset-author
 
 # push an existing repository
-git remote add origin git@github.com:hapina/graphtest.git
+# git remote add origin git@github.com:hapina/graphtest.git
+
+# clone an existing repository
+git clone https://github.com/hapina/graphtest.git
+
+git commit -a -m "message"
 git push -u origin master
