@@ -1,69 +1,75 @@
 import pyorient
 
-class graphdatabases:
+class GraphDB:
     client = None
     url = "localhost"
     port = 2424
     user = "orientuser"
     password = "password"
-    dbName = "firstDB"
+    dbName = "firstDB" #"GratefulDeadConcerts" #"firstDB"
 
-def dbOpen():
-    graphdatabases.client = pyorient.OrientDB(graphdatabases.url, graphdatabases.port)
-    session_id = graphdatabases.client.connect(graphdatabases.user, graphdatabases.password)
-    #print (graphdatabases.client.db_list())
-    if not graphdatabases.client.db_exists( graphdatabases.dbName, pyorient.STORAGE_TYPE_MEMORY ) :
-        graphdatabases.client.db_create( graphdatabases.dbName, pyorient.DB_TYPE_GRAPH, pyorient.STORAGE_TYPE_MEMORY )
-    graphdatabases.client.db_open( graphdatabases.dbName, graphdatabases.user, graphdatabases.password)        
-    print ("db open")
+    def dbOpen(self):
+        self.client = pyorient.OrientDB(self.url, self.port)
+        session_id = self.client.connect(self.user, self.password)
+        #print (self.client.db_list())
+        if not self.client.db_exists( self.dbName, pyorient.STORAGE_TYPE_MEMORY ) :
+            self.client.db_create( self.dbName, pyorient.DB_TYPE_GRAPH, pyorient.STORAGE_TYPE_MEMORY )
+        self.client.db_open( self.dbName, self.user, self.password)        
+        print ("db open")
 
-def dbClose():
-    graphdatabases.client.db_close()
+    def dbClose(self):
+        self.client.db_close()
 
-def dbQuery(queries):
-    dbOpen()
-    for query in queries:
-        result = graphdatabases.client.command(query)
-    dbClose()
-    return result
+    def dbQuery(self, queries):
+        self.dbOpen()
+        #for query in queries:
+         #   result = self.client.command(query)
+        result = self.client.command(queries)
+        self.dbClose()
+        return "OK"
 
-def dbLoad():
-    return graphdatabases.client
+    def dbLoad(self):
+        return self.client
 
-def dbCreate():
-    dbOpen()
-    graphdatabases.client.command("create class Animal extends V")
-    graphdatabases.client.command("insert into Animal set name = 'rat', specie = 'rodent'")    
-    graphdatabases.client.command('create class Food extends V')
-    graphdatabases.client.command("insert into Food set name = 'pea', color = 'green'")
-    graphdatabases.client.command('create class Eat extends E')
-    ### Lets the rat likes to eat pea
-    eat_edges = graphdatabases.client.command(
-        "create edge Eat from ("
-        "select from Animal where name = 'rat'"
-        ") to ("
-        "select from Food where name = 'pea'"
-        ")"
-    )
-    dbClose()
-    
-def dbSize():
-    dbOpen()
-    print (graphdatabases.client.db_size())
-    dbClose()
+    def dbCreate(self):
+        self.dbOpen()
+        self.client.command("create class Animal extends V")
+        self.client.command("insert into Animal set name = 'rat', specie = 'rodent'")    
+        self.client.command('create class Food extends V')
+        self.client.command("insert into Food set name = 'pea', color = 'green'")
+        self.client.command('create class Eat extends E')
+        ### Lets the rat likes to eat pea
+        eat_edges = self.client.command(
+            "create edge Eat from ("
+            "select from Animal where name = 'rat'"
+            ") to ("
+            "select from Food where name = 'pea'"
+            ")"
+        )
+        self.dbClose()
+        
+    def dbSize(self):
+        self.dbOpen()
+        size = self.client.db_size()
+        print (size)
+        self.dbClose()
+        return size
 
 def main():
-    dbSize()
-    #dbCreate(client)
-    print (dbQuery("select * from Animal"))
+    graph = GraphDB()
+    graph.dbSize()
+    #graph.dbCreate()
+    graph.dbQuery("select * from Animal")
+    print ("ok")
+    print (graph.dbQuery("select * from Animal"))
     
     ### Who eats the peas?
-    pea_eaters = dbQuery("select expand( in( Eat )) from Food where name = 'pea'")
+    pea_eaters = graph.dbQuery("select expand( in( Eat )) from Food where name = 'pea'")
     for animal in pea_eaters:
         print(animal.name, animal.specie)
         
     ### What each animal eats?
-    animal_foods = dbQuery("select expand( out( Eat )) from Animal")
+    animal_foods = graph.dbQuery("select expand( out( Eat )) from Animal")
     
     #for food in animal_foods:
      #   animal = graphdatabases.client.query(
