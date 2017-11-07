@@ -1,6 +1,5 @@
 import configparser
 
-
 class Configuration:    
     def __init__(self, f = None, d = dict()):
         self.conFile = f

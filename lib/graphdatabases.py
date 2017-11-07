@@ -1,12 +1,13 @@
-import pyorient
+import pyorient 
 
 class GraphDB:
-    client = None
-    url = "localhost"
-    port = 2424
-    user = "orientuser"
-    password = "password"
-    dbName = "firstDB" #"GratefulDeadConcerts" #"firstDB"
+    def __init__(self, conf = dict()):
+        self.client = None #conf['client']
+        self.url = "localhost" #conf['url']
+        self.port = 2424#conf['port']
+        self.user = "orientuser" #conf['user']
+        self.password = "password" #conf['password']
+        self.dbName = "firstDB" #conf['dbName']
 
     def dbOpen(self):
         self.client = pyorient.OrientDB(self.url, self.port)
@@ -56,6 +57,7 @@ class GraphDB:
         return size
 
 def main():
+    
     graph = GraphDB()
     graph.dbSize()
     #graph.dbCreate()

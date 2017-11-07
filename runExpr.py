@@ -3,6 +3,7 @@ import sys
 import getopt
 
 from lib.graphdatabases import GraphDB
+from lib.setupConfiguration import Configuration
 
 def usage():
 	print ( sys.argv[0] + " -h -v !!!UPRAVIT!!!")
@@ -54,16 +55,19 @@ def main():
 		print ("Logging: " + str(logging) )	
 		print ("Experiment: " + str(experiment) )	
 		print ("Database: " + str(database) + "\n---" )
-    
-    #------------------------------ Nacitani konfigu
-    
 		
+	#------------------------------ Nacitani konfigu
+	db = Configuration('/home/hapina/graphtest/config/orientdb.conf')
+	db.setupConf()
+	
+	exper = Configuration('/home/hapina/graphtest/config/expr0001.conf')
+	exper.setupConf()
+	
 	#------------------------------ Spusteni testu
 	start_time = time.time()
-	
 	g = GraphDB()
 	s = convert_bytes(g.dbSize())
-	print ( s) 
+	print (s) 
 	result = g.dbQuery("select * from Animal")
 	print(result)
 	
