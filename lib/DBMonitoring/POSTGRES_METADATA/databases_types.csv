@@ -1,8 +1,0 @@
-tablename;columnname;type;optional
-databases_types;db_id;Char(10);PRIMARY KEY
-databases_types;db_name;Varchar(20);
-databases_types;db_description;Varchar(50);
-databases_types;db_configuration;Varchar(50);
-databases_types;db_gremlin;boolean;
-databases_types;db_blueprint;boolean;
-databases_types;db_java;boolean;
