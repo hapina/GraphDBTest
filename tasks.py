@@ -25,16 +25,10 @@ def install(ctx):
 def runtest(ctx, db=None, ex=None):
     """ Starts the experiment for the set database 
     """
-    print("runtest") 
-    if db:
-        print("db: " + db)
-    else:
-        print("chyba")
-    if ex:
-        print("ex: " + ex)
-    else:
-        print("chyba")
-    run('cd graphdbtest && python3 runTest.py')
+    if not db or not ex:
+        print("ERROR Not found mandatory arguments \n Usage: invoke runtest --db db.cfg --ex ex.cfg")
+        exit(1001)
+    run('cd graphdbtest && python3 runtest.py {db} {ex}'.format(db=db, ex=ex) )
         
 def requirements(ctx):
     """ Pip installs all requirements, and if db arg is passed, the
