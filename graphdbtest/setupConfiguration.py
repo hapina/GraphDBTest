@@ -4,6 +4,9 @@ class Configuration:
     def __init__(self, f = None, d = dict()):
         self.conFile = f
         self.conDict = d
+        
+    def get(self, item):
+        return self.conDict[item]
     
     def setupConf(self):
         self.conDict = dict()
@@ -22,14 +25,14 @@ class Configuration:
         return self
     
 def main():
-    db = Configuration('/home/hapina/graphtest/config/orientdb.conf')
+    db = Configuration('/home/hapina/GraphDBTest/graphdbtest/config/orientdb.conf')
     db.setupConf()
-    print (db.conDict['url'])
+    print (db.get("url"))
     
-    exper = Configuration('/home/hapina/graphtest/config/expr0001.conf', db.conDict)
+    exper = Configuration('/home/hapina/GraphDBTest/graphdbtest/config/expr0001.conf', db.conDict)
     exper.updateConf()
     exper.setupConf()
-    print (exper.conDict['queryseq'])
+    print (exper.get('command'))
     
 
 if __name__ == "__main__":

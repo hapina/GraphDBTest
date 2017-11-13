@@ -2,7 +2,7 @@ import time
 import sys
 import getopt
 
-from graphdatabases import GraphDB
+from orientdb.main import GraphDB
 from setupConfiguration import Configuration
 
 def usage():
@@ -66,14 +66,17 @@ def main():
 	
 	exper = Configuration(exConf)
 	exper.setupConf()
-	
+
 	#------------------------------ Spusteni testu
 	start_time = time.time()
-	g = GraphDB()
-	s = convert_bytes(g.dbSize())
+	g = GraphDB(db)
+	s = convert_bytes(g.size())
 	print (s) 
-	result = g.dbQuery("select * from Animal")
-	print(result)
+	#g.dbCreate()
+	result = g.read(exper.get('command'))
+	print("result: ")
+	for item in result:
+		print(" >" + str(item))
 	
 	print(" --- %s seconds ---" % (time.time()-start_time))
 	#------------------------------
