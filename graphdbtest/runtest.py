@@ -59,8 +59,8 @@ def main():
     if (verbose): 
         print ("---\nVerbose: " + str(verbose) )
         print ("Repetition: " + str(repetition) )
-        print ("Logging: " + str(logging) )	
-        print ("Experiment: " + str(experiment) )	
+        print ("Logging: " + str(logging) )
+        print ("Experiment: " + str(experiment) )
         print ("Database: " + str(database) + "\n---" )
     #----------------------------- runExper(dbname, exper.conf)
     print (dbConf)
@@ -69,6 +69,10 @@ def main():
     exper = Configuration(exConf)
     exper.setupConf()  
     
+    if dbConf=="orientdb":
+        g = GraphDB()
+        s = convert_bytes(g.size())
+        print(s)
     
     
     #------------------------------ Nacitani konfigu

@@ -2,7 +2,7 @@ import pyorient
 from .local import *
 
 class GraphDB:
-    def __init__(self, conf = dict()):
+    def __init__(self):
         self.client = ORIENTDB_CLIENT
         self.url = ORIENTDB_URL 
         self.port = ORIENTDB_PORT 
