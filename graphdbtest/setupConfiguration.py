@@ -18,12 +18,14 @@ class Configuration:
     def readConf(self):
         config = configparser.ConfigParser()
         config.read(self.conFile)
-        #print (config.sections())        
+        if __debug__:
+            print (config.sections())        
         for key in config['DEFAULT']: 
             self.conDict.update({key: config['DEFAULT'][key]})
-        print (self.conDict)
+        if __debug__:
+            print (self.conDict)    
         return self
-    
+
 def main():
     db = Configuration('/home/hapina/GraphDBTest/graphdbtest/config/orientdb.conf')
     db.setupConf()

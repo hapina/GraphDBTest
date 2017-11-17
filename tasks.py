@@ -3,35 +3,71 @@ from invoke import task, run
 REQUIREMENTS='requirements.txt'
 
 @task
-def help(ctx):
+def usage(ctx):
     """ Basic task information
     """
     run('invoke -l')
+    print ("For information about infividual task use:\n\tinvoke --help <task>\n\tinvoke -h <task>")
 
 @task
-def uninstall(ctx):
+def clean(ctx):
     """ Clean enviroment
+        - remove temporary files
     """
     print("clean")
 
 @task
 def install(ctx):
     """ Prepare enviroment for run experiments
+        - isntall python3, pip and required python libraries
+        - install relation database (PostgreSQL) for storing results of experiments
+        - set required enviroment variable
+        - prepare structure
     """
     requirements(ctx)
     print("install")
+
+@task
+def debug(ctx, graphDatabaseName=None, experimentConfig=None):
+    """ Run experiment in debug mode
+        - both arguments are mandatory 
+        - graphDatabaseName: name of graph database 
+        - experimentConfig: experiment configuration file path
+    """
+    if not graphDatabaseName or not experimentConfig:
+        error(101, "Not found mandatory arguments", "debug")
+    runExperiment(ctx, graphDatabaseName, experimentConfig)
     
 @task
-def runtest(ctx, db=None, ex=None):
+def start(ctx, graphDatabaseName=None, experimentConfig=None):
+    """ Run graph database experiment
+        - both arguments are mandatory 
+        - graphDatabaseName: name of graph database 
+        - experimentConfig: experiment configuration file path
+    """
+    if not graphDatabaseName or not experimentConfig:
+        error(101, "Not found mandatory arguments", "start")
+    runExperiment(ctx, graphDatabaseName, experimentConfig, False)
+        
+def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 
     """
-    if not db or not ex:
-        print("ERROR Not found mandatory arguments \n Usage: invoke runtest --db db.cfg --ex ex.cfg")
-        exit(1001)
-    run('cd graphdbtest && python3 runtest.py {db} {ex}'.format(db=db, ex=ex) )
-        
+    options=""
+    if not debug:
+        options += "-O"
+    run('cd graphdbtest && python3 {opts} runtest.py {db} {ex}'.format(opts=options, db=db, ex=ex) )    
+
 def requirements(ctx):
     """ Pip installs all requirements, and if db arg is passed, the
-    requirements for that module as well """
-
+    requirements for that module as well 
+    """
     run('python3 -m pip install -r {req}'.format(req=REQUIREMENTS))
+
+def error(errorCode=1, errorMessage=None, task=None):
+    """ End task with error
+    """
+    if task:
+        run('invoke --help {t}'.format(t=task))
+    if errorMessage:
+        print ("\n [ERR] " + str(errorCode) + ": " + errorMessage)
+    exit(errorCode)

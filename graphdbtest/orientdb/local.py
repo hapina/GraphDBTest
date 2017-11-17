@@ -1,10 +1,10 @@
 """ ORIENT DB
 """
-client = None
-url = "localhost"
-port = 2424
-user = "orientuser"
-password = "password"
-dbName = "firstDB"
+ORIENTDB_CLIENT = None
+ORIENTDB_URL = "localhost"
+ORIENTDB_PORT = 2424
+ORIENTDB_USER = "orientuser"
+ORIENTDB_PASS = "password"
+ORIENTDB_DBNAME = "firstDB"
 
  

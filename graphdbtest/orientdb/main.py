@@ -3,12 +3,12 @@ from .local import *
 
 class GraphDB:
     def __init__(self, conf = dict()):
-        self.client = client #conf['client']
-        self.url = url #conf['url']
-        self.port = port #conf['port']
-        self.user = user #conf['user']
-        self.password = password #conf['password']
-        self.dbName = dbName #conf['dbName']
+        self.client = ORIENTDB_CLIENT
+        self.url = ORIENTDB_URL 
+        self.port = ORIENTDB_PORT 
+        self.user = ORIENTDB_USER 
+        self.password = ORIENTDB_PASS 
+        self.dbName = ORIENTDB_DBNAME 
 
     def connect(self):
         self.client = pyorient.OrientDB(self.url, self.port)
