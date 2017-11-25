@@ -1,5 +1,7 @@
 import pyorient 
-from .local import *
+import requests
+
+from local import *
 
 class GraphDB:
     def __init__(self):
@@ -62,13 +64,15 @@ class GraphDB:
         return size
 
 def main():
-    
-    graph = GraphDB()
-    graph.size()
-    graph.insert()
-    print("first select")
-    graph.read("select * from V")
-    print ("ok")
+    resp = requests.get(ORIENTDB_API_URL + ORIENTDB_DB_LIST, auth=(ORIENTDB_API_USER , ORIENTDB_API_PASS))    
+    print(resp.json())
+
+    #graph = GraphDB()
+    #graph.size()
+    #graph.insert()
+    #print("first select")
+    #graph.read("select * from V")
+    #print ("ok")
     #graph.read("select * from Animal")
    # print("second select OK")
    # print (graph.read("select * from Animal"))
