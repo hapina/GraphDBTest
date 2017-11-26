@@ -1,4 +1,4 @@
-""" GRAPH DB
+""" ORIENT DB
 """
 
 # access from python

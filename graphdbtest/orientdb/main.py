@@ -1,16 +1,16 @@
 import pyorient 
 import requests
 
-from local import *
+from graph_orientdb import *
 
 class GraphDB:
     def __init__(self):
-        self.client = ORIENTDB_CLIENT
-        self.url = ORIENTDB_URL 
-        self.port = ORIENTDB_PORT 
-        self.user = ORIENTDB_USER 
-        self.password = ORIENTDB_PASS 
-        self.dbName = ORIENTDB_DBNAME 
+        self.client = GRAPHDB_CLIENT
+        self.url = GRAPHDB_URL 
+        self.port = GRAPHDB_PORT 
+        self.user = GRAPHDB_USER 
+        self.password = GRAPHDB_PASS 
+        self.dbName = GRAPHDB_DBNAME 
 
     def connect(self):
         self.client = pyorient.OrientDB(self.url, self.port)

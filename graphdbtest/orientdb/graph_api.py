@@ -1,14 +1,15 @@
 import pyorient 
 import requests
+import gzip
 
-from local import *
+from graph_orientdb import *
 
 class GraphDB:
     def __init__(self):
         self.url = GRAPHDB_API_URL 
         self.user = GRAPHDB_API_USER 
         self.password = GRAPHDB_API_PASS 
-        self.dbName = GRAPHDB_DBNAME 
+        self.dbName = "" #GRAPHDB_DBNAME 
         self.create = GRAPHDB_DB_CREATE
         self.importdb = GRAPHDB_DB_IMPORT
         self.batch = GRAPHDB_DB_BATCH
@@ -50,11 +51,19 @@ class GraphDB:
 
 def main():
     graph = GraphDB()
+    graph.dbName = "testovaci_databaze"
+    #print(graph.createDB(GRAPHDB_DB_SCHEMA).json())
+    e = requests.post(graph.url + GRAPHDB_DB_LIST, auth=(graph.user , graph.password))
+    print(e.json())
     graph.size()
-    graph.createDB(GRAPHDB_DB_SCHEMA)
-    graph.exportDB()
+    #exportedDB = graph.exportDB()
+    #print(exportedDB.status_code)
+    #print(exportedDB.files)
+    e = requests.post(graph.url + GRAPHDB_DB_LIST, auth=(graph.user , graph.password))
+    print(e.json())
     graph.dropDB()
-    
+    e = requests.post(graph.url + GRAPHDB_DB_LIST, auth=(graph.user , graph.password))
+    print(e.json())
     print ("end")
 
 if __name__ == "__main__":
