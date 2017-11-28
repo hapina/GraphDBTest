@@ -39,11 +39,17 @@ class GraphDB:
         self.dbExists = (True if (req.status_code==200) else False)
         return self.dbExists
         
-    def importData(self, data):
+    def importData(self, importFile):
         """
         importData - POST
         """
-        return requests.post(self.url + self.importdb + self.dbName, data=data, auth=(self.user , self.password))          
+        req = requests.post(self.url + self.importdb + self.dbName, data=importFile, auth=(self.user , self.password))          
+        if req.status_code == 200:
+            print(req.json())
+            result = True
+        else:
+            result = False
+        return result
         
     def runBatch(self, batch):
         """
@@ -57,14 +63,21 @@ class GraphDB:
         """
         return requests.post(self.url + self.command + self.dbName + "/gremlin/", data=commands, auth=(self.user , self.password))          
 
-    def exportDB(self):    
+    def exportDB(self, path = "~/Downloads"):    
         """
         exportDB - GET
         """
         req = requests.get(self.url + self.export + self.dbName, auth=(self.user , self.password))  
         if req.status_code == 200:
-            print(req.raw)    
-            result = True
+            exportFile = path + "/exp_" + self.dbName + ".json" 
+            try:
+                content = gzip.decompress(req.content)
+                with open(exportFile, 'wb') as f:    
+                    f.write(content)            
+                result = True
+            except Exception as e:
+                print(type(e))
+                result = False
         else: 
             print("Error in exportDB: " + str(req.status_code) + req.json())
             result = False
@@ -107,34 +120,38 @@ class GraphDB:
         return requests.get(self.url + self.size + self.dbName, auth=(self.user , self.password)) 
 
 def main():
+    my_path = "/home/hapina/Downloads/"
     db1 = "GratefulDeadConcerts"
     db2 = "testovaci_databaze"
-    db3 = "myTemp7"
+    db3 = "GDC1000"
     gremlinCommands = []
     gremlinCommands.append('g.v("#10:1").out.map')
     gremlinCommands.append('g.V("name", "Garcia").inE("sung_by").outV.and(_().has("song_type", "original"), _().has("performances", T.gt, 1)).performances.order')
     gremlinCommands.append('g.V("name", "Garcia").inE("written_by").outV.has("song_type","original").name.order')
-    dbname = db1
+    dbname = db3
     
     graph = GraphDB(dbname)
     graph.setup()
-    if graph.dbExists:
+    if False and graph.dbExists:
         print ("INFO: Database exists.")
         for command in gremlinCommands:
             res = graph.runCommand(command)
             #print(str(res.status_code))
             parsed_json = json.loads(res.text)
             #print(parsed_json)
-        exportedDB = graph.exportDB()
-        print(exportedDB)     
+        print ("INFO: Export database.")
+        exportedDB = graph.exportDB(my_path)
+        print('INFO: Success!' if exportedDB else 'WARN: Something is wrong here.')     
     else:
         print ("INFO: Database will be created.")
-        print(graph.createDB())
+        #print(graph.createDB())
         print(graph.dbExists)
-        graph.dbName = "MyTemp4"
+        #graph.dbName = "MyTemp4"
         #print(graph.dropDB())
-        print(graph.dbExists)
-        #graph.importDB()
+        #print(graph.dbExists)
+        graph.importData(my_path + "exp_GratefulDeadConcerts.json")
+        print(graph.dbExists)  
+        
 
     print ("end")
 
