@@ -73,8 +73,11 @@ def main():
         g = GraphDB()
         s = convert_bytes(g.size())
         print(s)
-    
-    
+      #  g.dbCreate()
+      #  result = g.read(exper.get('command'))
+      #  print("result: ")
+      #  for item in result:
+      #      print(" >" + str(item))
     #------------------------------ Nacitani konfigu
     #db = Configuration(dbConf)
     #db.setupConf()    
