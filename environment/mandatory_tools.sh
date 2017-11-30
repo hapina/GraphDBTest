@@ -12,27 +12,27 @@ apt-get -y install python3-pip
 
 #python3 tools
 pip3 install invoke
-pip3 install virtualenv
+#pip3 install virtualenv
 
 #java JDK
-apt-get -y install default-jdk
+#apt-get -y install default-jdk
 
 #git
-apt-get -y install git-core
+#apt-get -y install git-core
 
 #maven
-apt-get -y install maven
+#apt-get -y install maven
 
 #virtualenv preparation
-virtualenv bulbs
-source bulbs/bin/activate
+#virtualenv bulbs
+#source bulbs/bin/activate
 
 #Postgres installation
-apt-get install postgresql postgresql-client
-sudo -u postgres psql -U postgres postgres -f psql_createUser.sql
-sudo -u postgres psql -U technical postgres -f psql_createDatabase.sql
-sudo -u postgres psql -U technical experiment_monitoring -f psql_createTable.sql
-
+apt-get -y install postgresql postgresql-client
+sudo -u postgres psql postgres -f psql_createUser.sql
+sudo -u postgres psql postgres -f psql_createDatabase.sql
+sudo -u postgres psql experiment_monitoring -f psql_createTable.sql
+sudo -u postgres psql postgres -c "grant ALL on database experiment_monitoring to technical"
 
 
 #instal OrientDB

@@ -9,6 +9,8 @@ import os
 import configparser
 import sys
 
+from monitoring_conf import *
+
 def createQuery(file, metadata_dir):
 	tags = dict()
 	query = "CREATE TABLE " + file[:-4] + "( "

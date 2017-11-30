@@ -66,8 +66,8 @@ def main():
     # Configuration
     exper = Configuration(experiment)
     exper.setupConf()  
-    gdbName = exper.get('dbName')
-    experimentType = exper.get('experimentType')
+    gdbName = exper.get('db_name')
+    experimentType = exper.get('experiment_type')
 
     
     # Graph database inicialization
@@ -76,10 +76,13 @@ def main():
         g.setup()
     elif database=="titandb":
         print("Not implemented yet.")
+        sys.exit(3)
     elif database=="arangodb":
         print("Not implemented yet.")
+        sys.exit(3)
     else:
         print("Not implemented yet.")
+        sys.exit(3)
         
     # Choose the type of experiment 
     if experimentType == 'commands':
@@ -91,14 +94,19 @@ def main():
             print("WARN: Failed runCommand for " + gdbName)
     elif experimentType == 'createdb':
         print("Not implemented yet.")
+        sys.exit(3)
     elif experimentType == 'dropdb':
         print("Not implemented yet.")
+        sys.exit(3)
     elif experimentType == 'importdb':
         print("Not implemented yet.")
+        sys.exit(3)
     elif experimentType == 'exportdb':
         print("Not implemented yet.")
+        sys.exit(3)
     else:
-        print("Not implemented yet.")    
+        print("Not implemented yet.")  
+        sys.exit(3)
     
     print("---")
     # Monitoring

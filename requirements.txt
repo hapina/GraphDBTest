@@ -1,2 +1,5 @@
+gremlinpython==3.3.0
 invoke==0.21.0
+psycopg2==2.7.3.2
 pyorient==1.5.5
+requests==2.12.4
