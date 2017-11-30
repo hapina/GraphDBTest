@@ -3,10 +3,10 @@ import sys
 import getopt
 
 from orientdb.orientdb_api import GraphDB
-from setupConfiguration import Configuration
+from setupConf import Configuration
 
 def usage():
-    print ( sys.argv[0] + " -h -v !!!UPRAVIT!!!")
+    print ( sys.argv[0] + " hr:l:me:d:v !!!UPRAVIT!!!")
 
 def convert_bytes(num):
     """
@@ -24,7 +24,7 @@ def main():
         print (">>> start in debug mode")      
     start_time = time.time()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hr:l:e:d:v", ["help", "repetition=", "logging=", "experiment=", "database=", "verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "hr:l:me:d:v", ["help", "repetition=", "logging=", "monitoring", "experiment=", "database=", "verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print (err)
@@ -33,6 +33,7 @@ def main():
     verbose = False
     repetition = None
     logging = None
+    monitoring = False
     experiment = None
     database = None
     for o, a in opts:
@@ -45,49 +46,45 @@ def main():
             repetition = a
         elif o in ("-l", "--logging"):
             logging = a
+        elif o in ("-m", "--monitoring"):
+            experiment = True
         elif o in ("-e", "--experiment"):
             experiment = a
         elif o in ("-d", "--database"):
             database = a
         else:
             assert False, "unhandled option."
-    
-    if args:
-        dbConf = args[0]
-        exConf = args[1]
 
     if (verbose) or __debug__: 
         print (">>> Verbose: " + str(verbose) )
         print (">>> Repetition: " + str(repetition) )
         print (">>> Logging: " + str(logging) )
+        print (">>> Monitoring: " + str(monitoring) )
         print (">>> Experiment: " + str(experiment) )
         print (">>> Database: " + str(database))
     
     # Configuration
-    if __debug__:
-        print (">>> " + dbConf)
-        print (">>> " + exConf)
-        
-    exper = Configuration(exConf)
+    exper = Configuration(experiment)
     exper.setupConf()  
-    gdbName = exper.get('dbname')
-    experimentType = exper.get('name')
-    commands = []
-    commands = exper.get('commands').split("|")
+    gdbName = exper.get('dbName')
+    experimentType = exper.get('experimentType')
+
     
     # Graph database inicialization
-    if dbConf=="orientdb":
+    if database=="orientdb":
         g = GraphDB(gdbName)
         g.setup()
-    elif dbConf=="titandb":
+    elif database=="titandb":
         print("Not implemented yet.")
-    elif dbConf=="arangodb":
+    elif database=="arangodb":
         print("Not implemented yet.")
     else:
         print("Not implemented yet.")
         
     # Choose the type of experiment 
     if experimentType == 'commands':
+        commands = []
+        commands = exper.get('commands').split("|")
         if __debug__:
             print(">>> RUN COMMANDS")
         if not g.runCommand(commands):
@@ -103,10 +100,18 @@ def main():
     else:
         print("Not implemented yet.")    
     
-    if __debug__:    
-        print(">>> %s seconds" % (time.time()-start_time))
     print("---")
-    #------------------------------
+    # Monitoring
+    if monitoring:
+        print("Not implemented yet.")
+                
+    if __debug__:    
+        print(">>> time: %s seconds" % (time.time()-start_time))
+        print(">>> database: %s" % (gdbName))
+        print(">>> experiment type: %s" % (experimentType))
+        print(">>> experiment: %s" % (experiment))
+        print(">>> repetition: %s" % (repetition))
+        print(">>> log settings: %s" % (logging))
 
 if __name__ == "__main__":
     main()

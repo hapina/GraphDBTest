@@ -55,7 +55,7 @@ def runExperiment(ctx, db=None, ex=None, debug=True):
     options=""
     if not debug:
         options += "-O"
-    run('cd graphdbtest && python3 {opts} runtest.py {db} {ex}'.format(opts=options, db=db, ex=ex) )    
+    run('cd graphdbtest && python3 {opts} runtest.py -d {db} -e {ex}'.format(opts=options, db=db, ex=ex) )    
 
 def requirements(ctx):
     """ Pip installs all requirements, and if db arg is passed, the
