@@ -1,1 +1,0 @@
-{"command": "g.V(:param, :name).inE(5)", "parameters": { "name" : "Garcia", "param" : "name"} }

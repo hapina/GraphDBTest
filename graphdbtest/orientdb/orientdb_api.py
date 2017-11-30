@@ -2,15 +2,15 @@ import requests
 import json
 import gzip
 
-from graph_orientdb import *
+from .orientdb_conf_api import *
 
 class GraphDB:
-    def __init__(self, dbName = None):
+    def __init__(self, dbName):
         # credentials
         self.url = GRAPHDB_API_URL 
         self.user = GRAPHDB_API_USER 
         self.password = GRAPHDB_API_PASS 
-        self.dbName = dbName 
+        self.dbName = dbName
         # uri for queries
         self.create = GRAPHDB_DB_CREATE
         self.importdb = GRAPHDB_DB_IMPORT
@@ -23,11 +23,11 @@ class GraphDB:
         self.defaultSchema = GRAPHDB_DB_SCHEMA_0
         self.dbExists = None
         
-    def setup(self, dbName = None):
+    def setup(self):
         """
         setup - setup dbName 
         """
-        self.dbExists = self.isDatabaseExist(dbName)
+        self.dbExists = self.isDatabaseExist(self.dbName)
 
     def createDB(self, schema = None):
         """
@@ -35,17 +35,19 @@ class GraphDB:
         """
         if not schema:
             schema = self.defaultSchema
-        req = requests.post(self.url + self.create + self.dbName + "/plocal", data=schema, auth=(self.user , self.password))    
-        self.dbExists = (True if (req.status_code==200) else False)
+        res = requests.post(self.url + self.create + self.dbName + "/plocal", data=schema, auth=(self.user , self.password))    
+        self.dbExists = (True if (res.status_code==200) else False)
         return self.dbExists
         
     def importData(self, importFile):
         """
         importData - POST
         """
-        req = requests.post(self.url + self.importdb + self.dbName, data=importFile, auth=(self.user , self.password))          
-        if req.status_code == 200:
-            print(req.json())
+        res = requests.post(self.url + self.importdb + self.dbName, data=importFile, auth=(self.user , self.password))          
+        if res and res.status_code == 200:
+            print(res.json())
+            #parsed_json = json.loads(res.text)
+            #print(parsed_json)
             result = True
         else:
             result = False
@@ -61,17 +63,22 @@ class GraphDB:
         """
         run commands - POST
         """
-        return requests.post(self.url + self.command + self.dbName + "/gremlin/", data=commands, auth=(self.user , self.password))          
+        for com in commands:
+            res = requests.post(self.url + self.command + self.dbName + "/gremlin/", data=com, auth=(self.user , self.password))          
+            if not res or res.status_code!=200 :
+                print("WARN: " + com)
+                return False
+        return True
 
     def exportDB(self, path = "~/Downloads"):    
         """
         exportDB - GET
         """
-        req = requests.get(self.url + self.export + self.dbName, auth=(self.user , self.password))  
-        if req.status_code == 200:
+        res = requests.get(self.url + self.export + self.dbName, auth=(self.user , self.password))  
+        if res and res.status_code == 200:
             exportFile = path + "/exp_" + self.dbName + ".json" 
             try:
-                content = gzip.decompress(req.content)
+                content = gzip.decompress(res.content)
                 with open(exportFile, 'wb') as f:    
                     f.write(content)            
                 result = True
@@ -79,7 +86,8 @@ class GraphDB:
                 print(type(e))
                 result = False
         else: 
-            print("Error in exportDB: " + str(req.status_code) + req.json())
+            if res:
+                print(str(res.status_code) + ": " + res.json())
             result = False
         return result
         
@@ -88,15 +96,16 @@ class GraphDB:
         dropDB - DELETE
         """        
         if self.dbExists:
-            req = requests.delete(self.url + self.drop + self.dbName, auth=(self.user , self.password)) 
-            if req.status_code == 204:
+            res = requests.delete(self.url + self.drop + self.dbName, auth=(self.user , self.password)) 
+            if res and res.status_code == 204:
                 self.dbExists = False
                 return True
             else:
-                print(req.json())
+                if res:
+                    print(str(res.status_code) + res.json())
                 return False
         else:
-            error("ERROR: database is not exist.")
+            error("WARN: database is not exist.")
             return False
     
     def isDatabaseExist(self, name = None):
@@ -105,8 +114,8 @@ class GraphDB:
         """
         if not name:
             name = self.dbName
-        req = requests.get(self.url + self.listdb, auth=(self.user , self.password)) 
-        listOfDB = json.loads(req.text)['databases']
+        res = requests.get(self.url + self.listdb, auth=(self.user , self.password)) 
+        listOfDB = json.loads(res.text)['databases']
         return (True if listOfDB and (self.dbName in listOfDB) else False)
     
     def sizedb(self):
@@ -123,37 +132,37 @@ def main():
     my_path = "/home/hapina/Downloads/"
     db1 = "GratefulDeadConcerts"
     db2 = "testovaci_databaze"
-    db3 = "GDC1000"
+    db3 = "GDC100012"
     gremlinCommands = []
     gremlinCommands.append('g.v("#10:1").out.map')
     gremlinCommands.append('g.V("name", "Garcia").inE("sung_by").outV.and(_().has("song_type", "original"), _().has("performances", T.gt, 1)).performances.order')
     gremlinCommands.append('g.V("name", "Garcia").inE("written_by").outV.has("song_type","original").name.order')
     dbname = db3
     
+    print ("---")    
     graph = GraphDB(dbname)
     graph.setup()
-    if False and graph.dbExists:
-        print ("INFO: Database exists.")
-        for command in gremlinCommands:
-            res = graph.runCommand(command)
-            #print(str(res.status_code))
-            parsed_json = json.loads(res.text)
-            #print(parsed_json)
-        print ("INFO: Export database.")
-        exportedDB = graph.exportDB(my_path)
-        print('INFO: Success!' if exportedDB else 'WARN: Something is wrong here.')     
-    else:
-        print ("INFO: Database will be created.")
-        #print(graph.createDB())
-        print(graph.dbExists)
-        #graph.dbName = "MyTemp4"
-        #print(graph.dropDB())
-        #print(graph.dbExists)
-        graph.importData(my_path + "exp_GratefulDeadConcerts.json")
-        print(graph.dbExists)  
-        
-
-    print ("end")
+    e = graph.dbExists
+    if not e:
+        print ("INFO: CreateDB")
+        if not graph.createDB():
+            print("WARN: Failed createDB for " + dbname)         
+        print ("INFO: ImportData")     
+        if not graph.importData(my_path + "exp_GratefulDeadConcerts.json"):
+            print("WARN: Failed importData for " + dbname)
+            
+    print ("INFO: Run Commnads")
+    if not graph.runCommand(gremlinCommands):
+        print("WARN: Failed runCommand for " + dbname)
+    print ("INFO: Export database.")
+    if not graph.exportDB(my_path):
+        print("WARN: Failed exportDB for " + dbname)     
+    if not e:                        
+        print ("INFO: DropDB and check of exists")   
+        if not graph.dropDB() or graph.dbExists:
+            print("WARN: Failed dropDB for " + dbname)
+        print ("INFO: Check of existance")   
+    print ("---")
 
 if __name__ == "__main__":
 	main()

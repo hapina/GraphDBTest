@@ -19,11 +19,11 @@ class Configuration:
         config = configparser.ConfigParser()
         config.read(self.conFile)
         if __debug__:
-            print (config.sections())        
+            print (">>> Sections: " + str(config.sections()))        
         for key in config['DEFAULT']: 
             self.conDict.update({key: config['DEFAULT'][key]})
         if __debug__:
-            print (self.conDict)    
+            print (">>> " + str(self.conDict))    
         return self
 
 def main():

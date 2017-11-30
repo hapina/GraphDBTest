@@ -2,7 +2,7 @@ import time
 import sys
 import getopt
 
-from orientdb.main import GraphDB
+from orientdb.orientdb_api import GraphDB
 from setupConfiguration import Configuration
 
 def usage():
@@ -19,9 +19,9 @@ def convert_bytes(num):
 
 def main():
     #------------------------------ Zpracovani vstupnich argumentu
-
+    print("---")
     if __debug__:
-        print (">> start in debug mode")      
+        print (">>> start in debug mode")      
     start_time = time.time()
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hr:l:e:d:v", ["help", "repetition=", "logging=", "experiment=", "database=", "verbose"])
@@ -56,45 +56,56 @@ def main():
         dbConf = args[0]
         exConf = args[1]
 
-    if (verbose): 
-        print ("---\nVerbose: " + str(verbose) )
-        print ("Repetition: " + str(repetition) )
-        print ("Logging: " + str(logging) )
-        print ("Experiment: " + str(experiment) )
-        print ("Database: " + str(database) + "\n---" )
-    #----------------------------- runExper(dbname, exper.conf)
-    print (dbConf)
-    print (exConf)
+    if (verbose) or __debug__: 
+        print (">>> Verbose: " + str(verbose) )
+        print (">>> Repetition: " + str(repetition) )
+        print (">>> Logging: " + str(logging) )
+        print (">>> Experiment: " + str(experiment) )
+        print (">>> Database: " + str(database))
     
+    # Configuration
+    if __debug__:
+        print (">>> " + dbConf)
+        print (">>> " + exConf)
+        
     exper = Configuration(exConf)
     exper.setupConf()  
+    gdbName = exper.get('dbname')
+    experimentType = exper.get('name')
+    commands = []
+    commands = exper.get('commands').split("|")
     
+    # Graph database inicialization
     if dbConf=="orientdb":
-        g = GraphDB()
-        s = convert_bytes(g.size())
-        print(s)
-      #  g.dbCreate()
-      #  result = g.read(exper.get('command'))
-      #  print("result: ")
-      #  for item in result:
-      #      print(" >" + str(item))
-    #------------------------------ Nacitani konfigu
-    #db = Configuration(dbConf)
-    #db.setupConf()    
-    #exper = Configuration(exConf)
-    #exper.setupConf()
-    #------------------------------ Spusteni testu
-
-    #g = GraphDB(db)
-    #s = convert_bytes(g.size())
-    #print (s) 
-    #g.dbCreate()
-    #result = g.read(exper.get('command'))
-    #print("result: ")
-    #for item in result:
-    #	print(" >" + str(item))
+        g = GraphDB(gdbName)
+        g.setup()
+    elif dbConf=="titandb":
+        print("Not implemented yet.")
+    elif dbConf=="arangodb":
+        print("Not implemented yet.")
+    else:
+        print("Not implemented yet.")
+        
+    # Choose the type of experiment 
+    if experimentType == 'commands':
+        if __debug__:
+            print(">>> RUN COMMANDS")
+        if not g.runCommand(commands):
+            print("WARN: Failed runCommand for " + gdbName)
+    elif experimentType == 'createdb':
+        print("Not implemented yet.")
+    elif experimentType == 'dropdb':
+        print("Not implemented yet.")
+    elif experimentType == 'importdb':
+        print("Not implemented yet.")
+    elif experimentType == 'exportdb':
+        print("Not implemented yet.")
+    else:
+        print("Not implemented yet.")    
     
-    print(" --- %s seconds ---" % (time.time()-start_time))
+    if __debug__:    
+        print(">>> %s seconds" % (time.time()-start_time))
+    print("---")
     #------------------------------
 
 if __name__ == "__main__":
