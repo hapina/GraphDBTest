@@ -24,8 +24,8 @@ def install(ctx):
         - set required enviroment variable
         - prepare structure
     """
+    run('cd envinronment && ./mandatory_tools.sh')
     requirements(ctx)
-    print("install")
 
 @task
 def debug(ctx, graphDatabaseName=None, experimentConfig=None):

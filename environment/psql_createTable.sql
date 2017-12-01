@@ -1,24 +1,28 @@
-CREATE TABLE databases_types (
-	db_id		 char(10) PRIMARY KEY,
-	db_name		 varchar(20),
-	db_description	 varchar(50),
-	db_configuration varchar(50),
-	db_gremlin	 boolean,
-	db_blueprint	 boolean,
-	db_java		 boolean
+CREATE TABLE GRAPH_DATABASES (
+	gdb_id		    char(10) PRIMARY KEY,
+	gdb_name		varchar(20),
+	gdb_description	varchar(50),
+	gdb_config_file varchar(50)
 );
-CREATE TABLE experiments_records (
-	r_id		char(10) PRIMARY KEY,
-	r_timestamp	timestamp,
-	r_experiment_id	char(10),
-	r_database_id	char(10),
-	r_repetition	integer,
-	r_status	varchar(50)
+CREATE TABLE RECORDS (
+	record_id		char(10) PRIMARY KEY,
+	timestamp	    timestamp,
+	exper_id	    char(10),
+	gdb_id	        char(10),
+	status	        varchar(50),
+	repetition	    integer,
+	exper_run_time  bigint,
+	db_size_before  bigint,
+	db_size_after   bigint
 );
-CREATE TABLE experiments_types (
-	e_id		char(10) PRIMARY KEY,
-	e_name		varchar(20),
-	e_description	varchar(50),
-	e_configuration	varchar(50),
-	e_type		varchar(10)
+CREATE TABLE EXPERIMENTS_TYPES (
+	exper_id		    char(10) PRIMARY KEY,
+	exper_name		    varchar(20),
+	exper_description	varchar(50),
+	exper_config_file	varchar(50)
+);
+CREATE TABLE EXPERIMENTS_VALUES (
+	value_id		    char(10) PRIMARY KEY,
+	value_name		    varchar(20),
+	exper_id	        char(10)
 );

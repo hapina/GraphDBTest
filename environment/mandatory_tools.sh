@@ -30,6 +30,7 @@ pip3 install invoke
 #Postgres installation
 apt-get -y install postgresql postgresql-client
 sudo -u postgres psql postgres -f psql_createUser.sql
+sudo -u postgres psql postgres -c "drop database if exists experiment_monitoring"
 sudo -u postgres psql postgres -f psql_createDatabase.sql
 sudo -u postgres psql experiment_monitoring -f psql_createTable.sql
 sudo -u postgres psql postgres -c "grant ALL on database experiment_monitoring to technical"

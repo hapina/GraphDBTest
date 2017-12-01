@@ -68,7 +68,6 @@ class Monitoring:
         pass
 
 def main():
-        pass
     print ("---")
     mon = Monitoring()
     mon.connection()
