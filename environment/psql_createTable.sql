@@ -2,7 +2,7 @@ CREATE TABLE GRAPH_DATABASES (
 	gdb_id		    char(10) PRIMARY KEY,
 	gdb_name		varchar(20),
 	gdb_description	varchar(50),
-	gdb_config_file varchar(50)
+	gdb_home varchar(50)
 );
 CREATE TABLE RECORDS (
 	record_id		char(10) PRIMARY KEY,

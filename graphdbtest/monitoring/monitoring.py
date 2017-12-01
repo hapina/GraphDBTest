@@ -2,6 +2,7 @@ import psycopg2
 import sys
 
 from monitoring_conf import *
+from psycopg2 import sql
 
 class Monitoring:
     def __init__(self):
@@ -12,6 +13,7 @@ class Monitoring:
         self.dbTable = MONITORING_DB_TABLE
         self.recTable = MONITORING_REC_TABLE
         self.experTable = MONITORING_EXPER_TABLE
+        self.valueTable = MONITORING_VALUE_TABLE
 
     def connection(self):
         try:
@@ -23,15 +25,17 @@ class Monitoring:
             print (e)
             sys.exit(11)
             
-    def execute(self, query, data):
+    def execute(self, query, data = None):
         connection = self.connection()
         connection.execute(query, data)
         result = connection.fetchall()
+        if not result:
+            result = "nic"
         #connection.close()
         return result
     
     def insert(self, table, data):
-        query = sql.SQL("INSERT INTO {} VALUES (%s, %s)").format(sql.Identifier(table))        
+        query = sql.SQL("INSERT INTO {} VALUES (%s, %s, %s, %s)").format(sql.Identifier(table))        
         return self.execute(query, data)
     
     def select(self, query):       
@@ -55,6 +59,13 @@ class Monitoring:
         """
         return self.insert(self.recTable, data)
 
+
+    def insertValue(self, data):
+        """
+        insertRecord
+        """
+        return self.insert(self.valueTable, data)
+
     def exportDB(self, path = "~/Downloads"):    
         """
         exportDB
@@ -69,12 +80,17 @@ class Monitoring:
 
 def main():
     print ("---")
+    db = ['orientdb', 'orientdb', 'OrientDB v2.2 document-graph database', '/opt/orientdb']
+    value = ['001', 'orientdb', 'OrientDB v2.2 document-graph database', '/opt/orientdb']
+    exper = ('001', 'select', 'select', 'e_command_001.conf')
+    record = ['0001', '', '001', '001', 'OK', 1, 234, None, None]
     mon = Monitoring()
     mon.connection()
-    mon.insertDatabase()
-    mon.insertExperiment()
-    mon.insertRecord()
-    mon.select("SELECT * FROM RECORD;")
+    mon.insertDatabase(db)
+   # mon.insertExperiment(exper)
+   # mon.insertRecord(record)
+   # mon.insertValue(value)
+    print(mon.select("SELECT * FROM GRAPH_DATABASES;"))
     print ("---")
 
 if __name__ == "__main__":
