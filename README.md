@@ -1,10 +1,10 @@
 # Graph Database Test 
 
 ## Usage: 
-inv[oke] [--core-opts] task1 [--task1-opts] ... taskN [--taskN-opts]
+`inv[oke] [--core-opts] task1 [--task1-opts] ... taskN [--taskN-opts]`
 
 
-## Available tasks:
+## Available tasks (`invoke -l`):
 
 - clean: 
 Clean enviroment
@@ -18,5 +18,5 @@ Run graph database experiment
 Basic task information
 
 For information about infividual task use:
- - invoke --help task
- - invoke -h task
+ - `invoke --help task`
+ - `invoke -h task`
