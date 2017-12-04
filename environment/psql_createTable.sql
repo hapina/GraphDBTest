@@ -1,28 +1,28 @@
-CREATE TABLE GRAPH_DATABASES (
-	gdb_id		    char(10) PRIMARY KEY,
-	gdb_name		varchar(20),
+CREATE TABLE graph_databases (
+	gdb_id		    SERIAL PRIMARY KEY,
+	gdb_name		varchar(20) NOT NULL,
 	gdb_description	varchar(50),
-	gdb_home varchar(50)
+	gdb_version     varchar(20)
 );
-CREATE TABLE RECORDS (
-	record_id		char(10) PRIMARY KEY,
-	timestamp	    timestamp,
+CREATE TABLE records (
+	record_id		BIGSERIAL PRIMARY KEY,
+	timestamp	    timestamp NOT NULL,
 	exper_id	    char(10),
 	gdb_id	        char(10),
-	status	        varchar(50),
+	status	        varchar(50) NOT NULL,
 	repetition	    integer,
-	exper_run_time  bigint,
-	db_size_before  bigint,
-	db_size_after   bigint
+	run_time        double precision,
+	size_before     double precision,
+	size_after      double precision
 );
-CREATE TABLE EXPERIMENTS_TYPES (
-	exper_id		    char(10) PRIMARY KEY,
-	exper_name		    varchar(20),
+CREATE TABLE experiments_types (
+	exper_id		    SERIAL PRIMARY KEY,
+	exper_name		    varchar(20) NOT NULL,
 	exper_description	varchar(50),
 	exper_config_file	varchar(50)
 );
-CREATE TABLE EXPERIMENTS_VALUES (
-	value_id		    char(10) PRIMARY KEY,
-	value_name		    varchar(20),
-	exper_id	        char(10)
+CREATE TABLE experiments_values (
+	value_id		    SERIAL PRIMARY KEY,
+	value_name		    varchar(20) NOT NULL,
+	exper_id	        char(10) NOT NULL
 );

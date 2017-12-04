@@ -17,15 +17,22 @@ def clean(ctx):
     print("clean")
 
 @task
-def install(ctx):
+def install(ctx, database=False):
     """ Prepare enviroment for run experiments
         - isntall python3, pip and required python libraries
         - install relation database (PostgreSQL) for storing results of experiments
-        - set required enviroment variable
+        - prepare database structure and run the initial load
         - prepare structure
     """
-    run('cd envinronment && ./mandatory_tools.sh')
-    requirements(ctx)
+    if database:
+        if __debug__:
+            print(">>> Only prepare database")
+        run('cd environment && ./prepare_database.sh')
+    else:
+        if __debug__:
+            print(">>> Install All")
+        run('cd environment && ./mandatory_tools.sh && ./prepare_database.sh')
+        requirements(ctx)
 
 @task
 def debug(ctx, graphDatabaseName=None, experimentConfig=None):

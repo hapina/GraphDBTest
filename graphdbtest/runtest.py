@@ -4,9 +4,7 @@ import getopt
 
 from orientdb.orientdb_api import GraphDB
 from setupConf import Configuration
-
-def usage():
-    print ( sys.argv[0] + " hr:l:me:d:v !!!UPRAVIT!!!")
+from monitoring.monitoring import Monitoring
 
 def convert_bytes(num):
     """
@@ -22,27 +20,23 @@ def main():
     print("---")
     if __debug__:
         print (">>> start in debug mode")      
-    start_time = time.time()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hr:l:me:d:v", ["help", "repetition=", "logging=", "monitoring", "experiment=", "database=", "verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "r:l:me:d:", ["repetition=", "logging=", "monitoring", "experiment=", "database="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print (err)
         usage()
         sys.exit(2)
-    verbose = False
+        
     repetition = None
     logging = None
     monitoring = False
     experiment = None
     database = None
+    status = "ERR"
+    
     for o, a in opts:
-        if o in ("-v", "verbose"):
-            verbose = True
-        elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-r", "--repetition"):
+        if o in ("-r", "--repetition"):
             repetition = a
         elif o in ("-l", "--logging"):
             logging = a
@@ -54,36 +48,47 @@ def main():
             database = a
         else:
             assert False, "unhandled option."
-
-    if (verbose) or __debug__: 
-        print (">>> Verbose: " + str(verbose) )
-        print (">>> Repetition: " + str(repetition) )
-        print (">>> Logging: " + str(logging) )
-        print (">>> Monitoring: " + str(monitoring) )
-        print (">>> Experiment: " + str(experiment) )
-        print (">>> Database: " + str(database))
     
     # Configuration
     exper = Configuration(experiment)
     exper.setupConf()  
     gdbName = exper.get('db_name')
     experimentType = exper.get('experiment_type')
+    if not repetition:
+        repetition = exper.get('repetition')
+    if not logging:
+        logging = exper.get('logging')
+    if not monitoring:
+        monitoring = True if exper.get('monitoring')=='yes' else False
 
+    start_time = time.time()
+    record = dict()
+    record['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
+    record['exper_config_file'] = 'e_select_001.conf' #experiment
+    record['gdb_name'] = exper.get('db_name')
+    record['repetition'] = exper.get('repetition')
+
+    if __debug__: 
+        print (">>> Repetition: " + str(repetition) )
+        print (">>> Logging: " + str(logging) )
+        print (">>> Monitoring: " + str(monitoring) )
+        print (">>> Experiment: " + str(experiment) )
+        print (">>> Database: " + str(database))
     
     # Graph database inicialization
     if database=="orientdb":
         g = GraphDB(gdbName)
         g.setup()
     elif database=="titandb":
-        print("Not implemented yet.")
+        print("WARN: Not implemented yet.")
         sys.exit(3)
     elif database=="arangodb":
-        print("Not implemented yet.")
+        print("WARN:  Not implemented yet.")
         sys.exit(3)
     else:
-        print("Not implemented yet.")
+        print("WARN: Not implemented yet.")
         sys.exit(3)
-        
+    
     # Choose the type of experiment 
     if experimentType == 'commands':
         commands = []
@@ -92,33 +97,57 @@ def main():
             print(">>> RUN COMMANDS")
         if not g.runCommand(commands):
             print("WARN: Failed runCommand for " + gdbName)
+        else:
+            status = "OK"
     elif experimentType == 'createdb':
-        print("Not implemented yet.")
+        print("WARN: Not implemented yet.")
         sys.exit(3)
     elif experimentType == 'dropdb':
-        print("Not implemented yet.")
+        print("WARM: Not implemented yet.")
         sys.exit(3)
     elif experimentType == 'importdb':
-        print("Not implemented yet.")
+        print("WARM: Not implemented yet.")
         sys.exit(3)
     elif experimentType == 'exportdb':
-        print("Not implemented yet.")
+        print("WARN: Not implemented yet.")
         sys.exit(3)
     else:
-        print("Not implemented yet.")  
+        print("WARN: Not implemented yet.")  
         sys.exit(3)
-    
+ 
+    record['status'] = status
+    record['run_time'] = (time.time()-start_time)
+    record['size_before'] = 0.0
+    record['size_after'] = 0.0
     print("---")
+    
     # Monitoring
     if monitoring:
-        print("Not implemented yet.")
+        if __debug__:
+            print(">>> Monitoring")
+            print(">>> data = " + str(record))
+        mon = Monitoring()
+        mon.insertRecord(record)
+        print(mon.select("select * from records"))
+    
+    #record_id		BIGSERIAL PRIMARY KEY,
+    #timestamp	    timestamp NOT NULL,
+    #exper_id	    char(10),
+    #gdb_id	        char(10),
+    #status	        varchar(50) NOT NULL,
+    #repetition	    integer,
+    #exper_run_time  bigint,
+    #db_size_before  bigint,
+    #db_size_after
                 
     if __debug__:    
-        print(">>> time: %s seconds" % (time.time()-start_time))
-        print(">>> database: %s" % (gdbName))
         print(">>> experiment type: %s" % (experimentType))
+        print(">>> timestamp: %s" % (record['timestamp'] ))
         print(">>> experiment: %s" % (experiment))
-        print(">>> repetition: %s" % (repetition))
+        print(">>> database: %s" % (gdbName))
+        print(">>> status: %s" % (record['status'] ))
+        print(">>> repetition: %s" % (record['repetition'] ))
+        print(">>> run_time: %s seconds" % record['run_time'] )
         print(">>> log settings: %s" % (logging))
 
 if __name__ == "__main__":
