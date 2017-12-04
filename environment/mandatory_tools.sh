@@ -29,6 +29,8 @@ pip3 install invoke
 
 #Postgres installation
 apt-get -y install postgresql postgresql-client
+apt-get -y install libpq-dev
+
     
 #instal OrientDB
 #wget http://bit.ly/2qiDJ2a -O orientdb-community-3.0.0m2.tar.gz
