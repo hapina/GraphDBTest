@@ -65,7 +65,7 @@ def main():
     record = dict()
     record['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
     record['exper_config_file'] = 'e_select_001.conf' #experiment
-    record['gdb_name'] = exper.get('db_name')
+    record['gdb_name'] = database
     record['repetition'] = exper.get('repetition')
 
     if __debug__: 
