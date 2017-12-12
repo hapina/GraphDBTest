@@ -83,7 +83,7 @@ def main():
         print("WARN: Not implemented yet.")
         sys.exit(3)
     elif database=="arangodb":
-        print("WARN:  Not implemented yet.")
+        print("WARN:  Not implemented yet.
         sys.exit(3)
     else:
         print("WARN: Not implemented yet.")

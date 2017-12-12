@@ -1,6 +1,7 @@
 #!/bin/bash
 
-GraphDBTest_home=`pwd`
+GraphDBTest_home=$(dirname $(readlink -f $0))
+echo $GraphDBTest_home
 sudo -u postgres psql postgres -f psql_createUser.sql
 sudo -u postgres psql postgres -c "drop database if exists experiment_monitoring"
 sudo -u postgres psql postgres -f psql_createDatabase.sql
