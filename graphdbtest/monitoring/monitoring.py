@@ -4,7 +4,6 @@ import time
 from datetime import date
 
 from .monitoring_conf import *
-#from psycopg2 import sql
 
 class Data:
     def __init__(self, timestamp, exper_name, gdb_name, status, repetition, run_time, size_before, size_after):
@@ -143,6 +142,10 @@ class Monitoring:
         exportDB
         """    
         pass
+    
+    def getExperiment(self, exper, database):
+        query = "SELECT timestamp, run_time FROM records WHERE status='OK' and exper_id='1' and gdb_id='1' order by timestamp"
+        return self.select(query)
 
 def main():
     print ("---")

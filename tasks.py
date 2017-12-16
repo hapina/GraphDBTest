@@ -1,4 +1,5 @@
 from invoke import task, run
+from graphdbtest.monitoring.monitoring import Monitoring
 import os
 import sys
 
@@ -76,7 +77,21 @@ def test(ctx):
             if __debug__:
                 print(">>>> Test no. " + str(i) + ", " + db + ", " + conf )
             debug(ctx, conf, db)
-
+            
+@task
+def csv(ctx):
+    """ Generate CSV file 
+        - choose experiment or database
+    """
+    m = Monitoring()
+    print(m.getExperiment("exper","database"))
+            
+@task
+def png(ctx):
+    """ Generate graph in PNG file 
+        - choose experiment or database 
+    """
+    
 def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 
     """
