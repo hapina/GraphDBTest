@@ -65,7 +65,7 @@ class Monitoring:
             query += str(val) + "','"
         query = query[:-2] + ")"  
         if __debug__:
-            print(">>> PostgreSQL: " + query)
+            print(">>> Monitoring insert: {}".format(data))
         return self.execute(query)
     
     def select(self, query):       
@@ -92,11 +92,9 @@ class Monitoring:
         #d = Data(data)
         gdb_id = 0
         exper_config_file = data['exper_config_file']
-        gdb_name = data['gdb_name']
+        gdb_name = data['database']
         exper_id = self.select("select exper_id from " + self.experTable + " where exper_config_file = \'" + exper_config_file + "\'")
         gdb_id = self.select("select gdb_id from " + self.dbTable + " where gdb_name = \'" + gdb_name + "\'")
-        if __debug__:
-            print(">>>  {db}|{exp}|{dbid}".format(db=gdb_name,exp=exper_id[0][0],dbid=gdb_id[0][0]))   
         tableDefinition = self.recTable + " (timestamp, exper_id, gdb_id, status, repetition, run_time, size_before, size_after) "
         record = [data['timestamp'], exper_id[0][0], gdb_id[0][0], data['status'], data['repetition'], data['run_time'], data['size_before'], data['size_after']] 
         return self.insert(tableDefinition, record)
