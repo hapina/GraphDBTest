@@ -1,0 +1,17 @@
+{
+  "config": { "log": "debug" },
+  "source": { "file": { "path": "/home/hapina/GraphDBTest/graphdbtest/orientdb/data.json" } },
+  "extractor": { "json": {} },
+  "transformers": [
+    { "vertex": { "class": "Whiz" } }
+  ],
+  "loader": {
+    "orientdb": {
+       "dbURL": "plocal:/opt/orientdb/databases/test",
+       "dbType": "graph",
+       "classes": [
+            {"name": "Whiz", "extends": "V"}
+         ]
+    }
+  }
+}

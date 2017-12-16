@@ -93,11 +93,10 @@ class Monitoring:
         gdb_id = 0
         exper_config_file = data['exper_config_file']
         gdb_name = data['gdb_name']
-        print(gdb_name)
         exper_id = self.select("select exper_id from " + self.experTable + " where exper_config_file = \'" + exper_config_file + "\'")
         gdb_id = self.select("select gdb_id from " + self.dbTable + " where gdb_name = \'" + gdb_name + "\'")
-        print(exper_id[0][0])
-        print(gdb_id[0][0])   
+        if __debug__:
+            print(">>>  {db}|{exp}|{dbid}".format(db=gdb_name,exp=exper_id[0][0],dbid=gdb_id[0][0]))   
         tableDefinition = self.recTable + " (timestamp, exper_id, gdb_id, status, repetition, run_time, size_before, size_after) "
         record = [data['timestamp'], exper_id[0][0], gdb_id[0][0], data['status'], data['repetition'], data['run_time'], data['size_before'], data['size_after']] 
         return self.insert(tableDefinition, record)

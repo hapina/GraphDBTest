@@ -16,10 +16,7 @@ def convert_bytes(num):
         num /= 1024.0
 
 def main():
-    #------------------------------ Zpracovani vstupnich argumentu
-    print("---")
-    if __debug__:
-        print (">>> start in debug mode")      
+    #------------------------------ Zpracovani vstupnich argumentu      
     try:
         opts, args = getopt.getopt(sys.argv[1:], "r:l:me:d:", ["repetition=", "logging=", "monitoring", "experiment=", "database="])
     except getopt.GetoptError as err:
@@ -28,8 +25,7 @@ def main():
         usage()
         sys.exit(2)
         
-    repetition = None
-    logging = None
+    repetition = logging = None
     monitoring = False
     experiment = None
     database = None
@@ -61,85 +57,45 @@ def main():
     if not monitoring:
         monitoring = True if exper.get('monitoring')=='yes' else False
 
-    start_time = time.time()
     record = dict()
     record['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
-    record['exper_config_file'] = 'e_select_001.conf' #experiment
+    record['exper_config_file'] = experiment[(experiment.rfind('/') + 1):]
     record['gdb_name'] = database
     record['repetition'] = exper.get('repetition')
-
-    if __debug__: 
-        print (">>> Repetition: " + str(repetition) )
-        print (">>> Logging: " + str(logging) )
-        print (">>> Monitoring: " + str(monitoring) )
-        print (">>> Experiment: " + str(experiment) )
-        print (">>> Database: " + str(database))
     
     # Graph database inicialization
     if database=="orientdb":
         g = GraphDB(gdbName)
         g.setup()
-    elif database=="titandb":
-        print("WARN: Not implemented yet.")
-        sys.exit(3)
-    elif database=="arangodb":
-        print("WARN:  Not implemented yet.
-        sys.exit(3)
     else:
         print("WARN: Not implemented yet.")
-        sys.exit(3)
+        return 3
     
     # Choose the type of experiment 
-    if experimentType == 'commands':
-        commands = []
-        commands = exper.get('commands').split("|")
-        if __debug__:
-            print(">>> RUN COMMANDS")
-        if not g.runCommand(commands):
-            print("WARN: Failed runCommand for " + gdbName)
-        else:
-            status = "OK"
-    elif experimentType == 'createdb':
-        print("WARN: Not implemented yet.")
-        sys.exit(3)
-    elif experimentType == 'dropdb':
-        print("WARM: Not implemented yet.")
-        sys.exit(3)
-    elif experimentType == 'importdb':
-        print("WARM: Not implemented yet.")
-        sys.exit(3)
-    elif experimentType == 'exportdb':
-        print("WARN: Not implemented yet.")
-        sys.exit(3)
+    if experimentType == 'select':
+        for i in range(int(repetition)):
+            start_time = time.time()
+            commands = []
+            commands = exper.get('commands').split("|")
+            if __debug__:
+                print(">>> " + str(i) + ". RUN COMMANDS")
+            if not g.runCommand(commands):
+                print("WARN: Failed runCommand for " + gdbName)
+            else:
+                status = "OK"
+            record['status'] = status
+            record['run_time'] = (time.time()-start_time)
+            record['size_before'] = 0.0
+            record['size_after'] = 0.0 
+            if monitoring:
+                if __debug__:
+                    print(">>> Monitoring")
+                mon = Monitoring()
+                mon.insertRecord(record)
     else:
         print("WARN: Not implemented yet.")  
-        sys.exit(3)
+        return 3
  
-    record['status'] = status
-    record['run_time'] = (time.time()-start_time)
-    record['size_before'] = 0.0
-    record['size_after'] = 0.0
-    print("---")
-    
-    # Monitoring
-    if monitoring:
-        if __debug__:
-            print(">>> Monitoring")
-            print(">>> data = " + str(record))
-        mon = Monitoring()
-        mon.insertRecord(record)
-        print(mon.select("select * from records"))
-    
-    #record_id		BIGSERIAL PRIMARY KEY,
-    #timestamp	    timestamp NOT NULL,
-    #exper_id	    char(10),
-    #gdb_id	        char(10),
-    #status	        varchar(50) NOT NULL,
-    #repetition	    integer,
-    #exper_run_time  bigint,
-    #db_size_before  bigint,
-    #db_size_after
-                
     if __debug__:    
         print(">>> experiment type: %s" % (experimentType))
         print(">>> timestamp: %s" % (record['timestamp'] ))

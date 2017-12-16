@@ -1,0 +1,32 @@
+{
+  "config": { "log": "debug" },
+  "source": { "file": { "path": "/home/hapina/GraphDBTest/graphdbtest/orientdb/data.csv" } },
+  "extractor": { "row": {} },
+  "transformers": [
+    { 
+      "csv": {
+        "separator": ",",
+        "skipFrom": 1,
+        "skipTo": 0,
+        "nullValue": "Null",
+        "columnsOnFirstLine": true
+        }
+    },
+    { "merge": { "joinFieldName":"id", "lookup":"V.id" } },
+    { "vertex": { "class": "V" }},
+    { "edge": { 
+        "class": "E",
+        "joinFieldName": "friends",
+        "lookup": "V.id",
+        "unresolvedLinkAction": "CREATE" } }
+  ],
+  "loader": {
+    "orientdb": {
+       "dbURL": "plocal:/opt/orientdb/databases/test",
+       "dbType": "graph",
+       "indexes": [
+         {"class":"V", "fields":["id:integer"], "type":"UNIQUE" }
+       ]
+    }
+  }
+}

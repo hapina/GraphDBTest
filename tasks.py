@@ -1,6 +1,9 @@
 from invoke import task, run
+import os
+import sys
 
 REQUIREMENTS='requirements.txt'
+GRAPH_DATABASES=['orientdb', 'arangodb']
 
 @task
 def usage(ctx):
@@ -24,7 +27,7 @@ def install(ctx, database=False):
         - prepare database structure and run the initial load
         - prepare structure
     """
-    if database:
+    if database:    
         if __debug__:
             print(">>> Only prepare database")
         run('cd environment && ./prepare_database.sh')
@@ -35,7 +38,7 @@ def install(ctx, database=False):
         requirements(ctx)
 
 @task
-def debug(ctx, graphDatabaseName=None, experimentConfig=None):
+def debug(ctx, experimentConfig=None, graphDatabaseName=None):
     """ Run experiment in debug mode
         - both arguments are mandatory 
         - graphDatabaseName: name of graph database 
@@ -46,7 +49,7 @@ def debug(ctx, graphDatabaseName=None, experimentConfig=None):
     runExperiment(ctx, graphDatabaseName, experimentConfig)
     
 @task
-def start(ctx, graphDatabaseName=None, experimentConfig=None):
+def start(ctx, experimentConfig=None, graphDatabaseName=None):
     """ Run graph database experiment
         - both arguments are mandatory 
         - graphDatabaseName: name of graph database 
@@ -55,7 +58,25 @@ def start(ctx, graphDatabaseName=None, experimentConfig=None):
     if not graphDatabaseName or not experimentConfig:
         error(101, "Not found mandatory arguments", "start")
     runExperiment(ctx, graphDatabaseName, experimentConfig, False)
-        
+    
+@task
+def test(ctx):
+    """ Run all experiments defined in /config directory
+    """
+    if __debug__:
+        print(">>> TESTING <<<")
+    directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
+    configs = os.listdir(directory)
+    databases = GRAPH_DATABASES
+    i=0
+    for conf in configs:
+        conf = directory + conf
+        for db in databases:
+            i+=1
+            if __debug__:
+                print(">>>> Test no. " + str(i) + ", " + db + ", " + conf )
+            debug(ctx, conf, db)
+
 def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 
     """
