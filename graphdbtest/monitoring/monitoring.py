@@ -131,21 +131,26 @@ class Monitoring:
             self.dbConnection.close()
         return True
     
-    def exportDB(self, path = None):
-        """
-        exportDB
-        """    
-        pass
+    def getReportQuery(self, command=None, database=None, experiment=None):
+        query = "SELECT * FROM records WHERE status='OK'"
+        if experiment:
+            query += " AND exper_id='{}'".format(experiment)
+        if database:
+            query += " AND gdb_id='{}'".format(database)
+        if command:
+            query += " AND type_id='{}'".format(command)
+        query += " ORDER BY timestamp"
+        return query
     
-    def importDB(self, path = None):
-        """
-        exportDB
-        """    
-        pass
-    
-    def getExperiment(self, exper, database):
-        query = "SELECT timestamp, run_time FROM records WHERE status='OK' and exper_id='1' and gdb_id='1' order by timestamp"
-        return self.select(query)
+    def copyToCSV(self, query, csvFile):
+        copyQuery = "COPY (" + query + ") TO STDOUT WITH CSV"
+        try:
+            with self.connection() as cursor:
+                with open(csvFile, 'w') as f:
+                    cursor.copy_expert(copyQuery, f)
+                print("INFO: CSV file was created - {}".format(csvFile))
+        finally:
+            self.dbConnection.close()
 
 def main():
     print ("---")

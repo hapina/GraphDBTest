@@ -28,7 +28,6 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "e:d:", ["experiment=", "database="])
     except getopt.GetoptError as err:
         print (err)
-        usage()
         sys.exit(2)
         
     experiment = database = None

@@ -1,5 +1,5 @@
 from invoke import task, run
-from graphdbtest.monitoring.monitoring import Monitoring
+from datetime import date
 import os
 import sys
 
@@ -79,12 +79,25 @@ def test(ctx):
             debug(ctx, conf, db)
             
 @task
-def csv(ctx):
-    """ Generate CSV file 
-        - choose experiment or database
+def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
+    """ Generate experiments stats to CSV file 
+        You can choose from these options:
+        - command - stats relating to experiment type (select / import / create)
+        - database - stats relating to particular database (orientdb / titandb / arangodb)
+        - experiment - stats relating to particural experiment (ex_select_001.conf etc.)
+        - query - you can create your own report with using sql query
     """
-    m = Monitoring()
-    print(m.getExperiment("exper","database"))
+    if not fileName:
+        fileName = "/tmp/report_" + str(date.today()) + ".csv"
+    options=""   
+    if command:
+        run('cd graphdbtest && python3 {opts} gencsv.py -c {co} -f {fn}'.format(opts=options, co=command, fn=fileName) )    
+    if database:
+        run('cd graphdbtest && python3 {opts} gencsv.py -d {db} -f {fn}'.format(opts=options, db=database, fn=fileName) )    
+    if experiment:
+        run('cd graphdbtest && python3 {opts} gencsv.py -e {ex} -f {fn}'.format(opts=options, ex=experiment, fn=fileName) )   
+    if query:
+        run('cd graphdbtest && python3 {opts} gencsv.py -q "{qu}" -f {fn}'.format(opts=options, qu=query, fn=fileName) ) 
             
 @task
 def png(ctx):
