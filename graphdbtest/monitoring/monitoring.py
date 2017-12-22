@@ -5,23 +5,6 @@ from datetime import date
 
 from .monitoring_conf import *
 
-class Data:
-    def __init__(self, timestamp, exper_name, gdb_name, status, repetition, run_time, size_before, size_after):
-        self.timestamp = timestamp
-        self.exper_name = exper_name
-        self.exper_id = None
-        self.gdb_name = gdb_name
-        self.gdb_id = None
-        self.status = status
-        self.repetition = repetition
-        self.run_time = run_time
-        self.size_before = size_before
-        self.size_after = size_after
-
-    def getRecord(self):
-        record = [self.timestamp, self.exper_id, self.gdb_id, self.status, self.repetition, self.run_time, self.size_after]
-        return record
-
 class Monitoring:
     def __init__(self):
         self.url = MONITORING_URL 
@@ -106,7 +89,11 @@ class Monitoring:
         if __debug__:
             print("INFO: insert Experiment ({})".format(insertData))
         tableDefinition = self.expTab + " (run_date, iteration_count, gdb_id, conf_id) "
-        return self.insert(tableDefinition, insertData)
+        print(self.insert(tableDefinition, insertData))
+        sequence = "experiment_exper_id_seq"
+        print(self.execute("SELECT currval('experiment_exper_id_seq');"))
+        return "ok"
+    
 
     def insertIteration(self, data):
         """
@@ -177,18 +164,18 @@ def main():
     db = {'gdb_name': 'testovaciDB', 'gdb_description': 'Testovaci Databaze', 'gdb_version': '2.5.4'}
     exper = {'run_date': '2017-12-13 00:00:01', 'iteration_count': 3}
     #exper['gdb_id']=1
-    exper['gdb_name']='testovaciDB'
+    exper['gdb_name']='orientdb'
     #exper['conf_id']=1
     exper['conf_name']='e_select_001.conf'
     #value = ['test', '7']
     iteration = {'iter_timestamp': '2017-12-02 00:00:01', 'iter_number': 1, 'status': 'OK', 'exper_id':1}
     mon = Monitoring()
     #mon.insertDatabase(db)
-    #mon.insertExperiment(exper)
-    mon.insertIteration(iteration)
+    print(mon.insertExperiment(exper))
+    #mon.insertIteration(iteration)
     #mon.insertValue(value)
-    print(mon.select("SELECT * FROM ITERATION;"))
-    #print(mon.select("SELECT * FROM EXPERIMENT;"))
+    #print(mon.select("SELECT * FROM ITERATION;"))
+    print(mon.select("SELECT * FROM EXPERIMENT;"))
     print("-")
     #mon.exportTable("graph_databases", "/home/hapina/Downloads" )
     #mon.importTable("/home/hapina/Downloads/e_graph_databases_2017-12-03.csv", "graph_databases")
