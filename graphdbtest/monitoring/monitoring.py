@@ -3,7 +3,7 @@ import sys
 import time
 from datetime import date
 
-from .monitoring_conf import *
+from monitoring_conf import *
 
 class Data:
     def __init__(self, timestamp, exper_name, gdb_name, status, repetition, run_time, size_before, size_after):
@@ -28,12 +28,16 @@ class Monitoring:
         self.user = MONITORING_USER 
         self.password = MONITORING_PASS 
         self.dbName = MONITORING_DBNAME
-        self.dbTable = MONITORING_DB_TABLE
-        self.recTable = MONITORING_REC_TABLE
-        self.experTable = MONITORING_EXPER_TABLE
-        self.valueTable = MONITORING_VALUE_TABLE
         self.dbConnection = None
         self.dbCursor = None
+        
+        self.gdbTab = MONITORING_GDB_TABLE
+        self.measTab = MONITORING_MEAS_TABLE 
+        self.confTab = MONITORING_CONF_TABLE
+        self.typeTab = MONITORING_TYPE_TABLE
+        self.expTab = MONITORING_EXP_TABLE
+        self.iteTab = MONITORING_ITE_TABLE
+        self.valTab = MONITORING_VAL_TABLE
 
     def connection(self):
         try:
@@ -66,37 +70,53 @@ class Monitoring:
         if __debug__:
             print(">>> Monitoring insert: {}".format(data))
         return self.execute(query)
-    
+
     def select(self, query):       
         return self.execute(query)
-
+    
+    def getId(self, table, name, colId, colName):
+        id = self.execute("SELECT {cId} FROM {tab} WHERE {cN}='{n}';".format(tab=table, n=name, cId=colId, cN=colName))
+        return id[0][0]
+    
     def insertDatabase(self, data):
         """
         insertDatabase
         """
-        tableDefinition = self.dbTable + " (gdb_name, gdb_description, gdb_version) "
-        return self.insert(tableDefinition, data)
+        insert = [data['gdb_name'], data['gdb_description'], data['gdb_version']]
+        tableDefinition = self.gdbTab + " (gdb_name, gdb_description, gdb_version) "
+        return self.insert(tableDefinition, insert)
 
     def insertExperiment(self, data):
         """
-        insertExperiment
-        """        
-        tableDefinition = self.experTable + " (exper_name, exper_description, exper_config_file) "
-        return self.insert(tableDefinition, data)
+        insertExperiment    
+        """
+        if not 'gdb_id' in data:
+            if 'gdb_name' in data:
+                data['gdb_id'] = self.getId(self.gdbTab, data['gdb_name'], 'gdb_id', 'gdb_name') 
+            else:
+                print("ERR: Cannot insert data, missing parameter gdb_id")
+                sys.exit(12)
+        if not 'conf_id' in data:
+            if 'conf_name' in data:
+                data['conf_id'] = self.getId(self.confTab, data['conf_name'], 'conf_id', 'conf_name') 
+            else:
+                print("ERR: Cannot insert data, missing parameter conf_id")
+                sys.exit(12)
+        insertData = [data['run_date'], data['iteration_count'], data['gdb_id'], data['conf_id']]
+        if __debug__:
+            print("INFO: insert Experiment ({})".format(insertData))
+        tableDefinition = self.expTab + " (run_date, iteration_count, gdb_id, conf_id) "
+        return self.insert(tableDefinition, insertData)
 
-    def insertRecord(self, data):
+    def insertIteration(self, data):
         """
         insertRecord
-        """ 
-        #d = Data(data)
-        gdb_id = 0
-        exper_config_file = data['exper_config_file']
-        gdb_name = data['database']
-        exper_id = self.select("select exper_id from " + self.experTable + " where exper_config_file = \'" + exper_config_file + "\'")
-        gdb_id = self.select("select gdb_id from " + self.dbTable + " where gdb_name = \'" + gdb_name + "\'")
-        tableDefinition = self.recTable + " (timestamp, exper_id, gdb_id, status, repetition, run_time, size_before, size_after) "
-        record = [data['timestamp'], exper_id[0][0], gdb_id[0][0], data['status'], data['repetition'], data['run_time'], data['size_before'], data['size_after']] 
-        return self.insert(tableDefinition, record)
+        """       
+        insertData=[data['iter_timestamp'], data['iter_number'], data['status'], data['exper_id']]
+        if __debug__:
+            print("INFO: insert Iteration ({})".format(insertData))
+        tableDefinition = self.iteTab + " (iter_timestamp, iter_number, status, exper_id) "
+        return self.insert(tableDefinition, insertData)
 
     def insertValue(self, data):
         """
@@ -143,7 +163,7 @@ class Monitoring:
         return query
     
     def copyToCSV(self, query, csvFile):
-        copyQuery = "COPY (" + query + ") TO STDOUT WITH CSV"
+        copyQuery = "COPY ({}) TO STDOUT WITH CSV".format(query)
         try:
             with self.connection() as cursor:
                 with open(csvFile, 'w') as f:
@@ -154,24 +174,24 @@ class Monitoring:
 
 def main():
     print ("---")
-    db = ['testovaciDB', 'Testovaci Databaze v3.3', '/opt/testdb']
-    value = ['test', '7']
-    exper = ('select', 'select', 'e_command_001.conf')
-    record = ['2017-12-02 00:00:01', '1', '1', 'OK', 1, 2.34,0 ,0]
+    db = {'gdb_name': 'testovaciDB', 'gdb_description': 'Testovaci Databaze', 'gdb_version': '2.5.4'}
+    exper = {'run_date': '2017-12-13 00:00:01', 'iteration_count': 3}
+    #exper['gdb_id']=1
+    exper['gdb_name']='testovaciDB'
+    #exper['conf_id']=1
+    exper['conf_name']='e_select_001.conf'
+    #value = ['test', '7']
+    iteration = {'iter_timestamp': '2017-12-02 00:00:01', 'iter_number': 1, 'status': 'OK', 'exper_id':1}
     mon = Monitoring()
     #mon.insertDatabase(db)
     #mon.insertExperiment(exper)
-    #mon.insertRecord(record)
+    mon.insertIteration(iteration)
     #mon.insertValue(value)
-    print(mon.select("SELECT * FROM GRAPH_DATABASES;"))
-    print(mon.select("SELECT * FROM EXPERIMENTS_TYPES;"))
-    print(mon.select("SELECT * FROM EXPERIMENTS_VALUES;"))
-    print(mon.select("SELECT * FROM RECORDS;"))
+    print(mon.select("SELECT * FROM ITERATION;"))
+    #print(mon.select("SELECT * FROM EXPERIMENT;"))
     print("-")
     #mon.exportTable("graph_databases", "/home/hapina/Downloads" )
     #mon.importTable("/home/hapina/Downloads/e_graph_databases_2017-12-03.csv", "graph_databases")
-    
-    print(mon.select("SELECT * FROM GRAPH_DATABASES;"))
     
     print ("---")
 

@@ -21,22 +21,17 @@ def clean(ctx):
     print("clean")
 
 @task
-def install(ctx, database=False):
+def install(ctx, database):
     """ Prepare enviroment for run experiments
         - isntall python3, pip and required python libraries
         - install relation database (PostgreSQL) for storing results of experiments
         - prepare database structure and run the initial load
         - prepare structure
     """
-    if database:    
+    if database is 'orientdb':    
         if __debug__:
-            print(">>> Only prepare database")
-        run('cd environment && ./prepare_database.sh')
-    else:
-        if __debug__:
-            print(">>> Install All")
-        run('cd environment && ./mandatory_tools.sh && ./prepare_database.sh')
-        requirements(ctx)
+            print(">>> Install OrientDB")
+        run('cd graphdbtest/orientdb && ./install.sh')
 
 @task
 def debug(ctx, experimentConfig=None, graphDatabaseName=None):
@@ -89,16 +84,22 @@ def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=
     """
     if not fileName:
         fileName = "/tmp/report_" + str(date.today()) + ".csv"
-    options=""   
+    options = params = ""
+
     if command:
-        run('cd graphdbtest && python3 {opts} gencsv.py -c {co} -f {fn}'.format(opts=options, co=command, fn=fileName) )    
+        params += " -c {}".format(command)
     if database:
-        run('cd graphdbtest && python3 {opts} gencsv.py -d {db} -f {fn}'.format(opts=options, db=database, fn=fileName) )    
+        params += " -d {}".format(database) 
     if experiment:
-        run('cd graphdbtest && python3 {opts} gencsv.py -e {ex} -f {fn}'.format(opts=options, ex=experiment, fn=fileName) )   
+        params += " -e {}".format(experiment)
     if query:
-        run('cd graphdbtest && python3 {opts} gencsv.py -q "{qu}" -f {fn}'.format(opts=options, qu=query, fn=fileName) ) 
-            
+        params += ' -q "{}"'.format(query)
+    if params:
+        run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
+    else:
+        print('WARN: missing parameters, see invoke --help csv')
+        run('invoke --help csv')
+        
 @task
 def png(ctx):
     """ Generate graph in PNG file 

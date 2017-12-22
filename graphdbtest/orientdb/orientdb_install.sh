@@ -24,7 +24,7 @@ sudo sed -i "s/<users>/<users><user name='orientuser' password='password' resour
 #--------
 sudo chmod 640 /opt/orientdb/config/orientdb-server-config.xml
 sudo useradd -d /opt/orientdb -M -r -s /bin/false -U orientuser
-sudo chown -R orientuser.orientuser orientdb*
+sudo chown -R orientuser.orientuser /opt/orientdb*
 sudo chmod 775 /opt/orientdb/bin
 sudo chmod g+x /opt/orientdb/bin/*.sh
 sudo usermod -a -G orientuser orientuser
@@ -33,14 +33,14 @@ sudo cp orientdb/bin/orientdb.sh /etc/init.d/
 sudo sed -i "s|YOUR_ORIENTDB_INSTALLATION_PATH|/opt/orientdb|;s|USER_YOU_WANT_ORIENTDB_RUN_WITH|orientuser|" /etc/init.d/orientdb.sh
 
 # You have to SET the OrientDB installation directory here (if not already done so)
-ORIENTDB_DIR="/opt/orientdb"
-ORIENTDB_USER="orientuser"
+#ORIENTDB_DIR="/opt/orientdb"
+#ORIENTDB_USER="orientuser"
  
 #su -c "cd \"$ORIENTDB_DIR/bin\"; /usr/bin/nohup ./server.sh 1>../log/orientdb.log 2>../log/orientdb.err &" - $ORIENTDB_USER
-sudo -u $ORIENTDB_USER sh -c "cd \"$ORIENTDB_DIR/bin\"; /usr/bin/nohup ./server.sh 1>../log/orientdb.log 2>../log/orientdb.err &"
+#sudo -u $ORIENTDB_USER sh -c "cd \"$ORIENTDB_DIR/bin\"; /usr/bin/nohup ./server.sh 1>../log/orientdb.log 2>../log/orientdb.err &"
  
 #su -c "cd \"$ORIENTDB_DIR/bin\"; /usr/bin/nohup ./shutdown.sh 1>>../log/orientdb.log 2>>../log/orientdb.err &" - $ORIENTDB_USER
-sudo -u $ORIENTDB_USER sh -c "cd \"$ORIENTDB_DIR/bin\"; /usr/bin/nohup ./shutdown.sh 1>>../log/orientdb.log 2>>../log/orientdb.err &"
+#sudo -u $ORIENTDB_USER sh -c "cd \"$ORIENTDB_DIR/bin\"; /usr/bin/nohup ./shutdown.sh 1>>../log/orientdb.log 2>>../log/orientdb.err &"
 
 
 

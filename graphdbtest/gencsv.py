@@ -29,9 +29,13 @@ def main():
         
     #------------------------------ Generate CSV file
     m = Monitoring()
-    if not query:
+    if query:
+        if command or database or experiment:
+            print("WARN: Parameter query was )
+    elif:
         query = m.getReportQuery(command, database, experiment)
-    m.copyToCSV(query, fileName)
+    print(query)
+    #m.copyToCSV(query, fileName)
     
 if __name__ == "__main__":
 	main()
