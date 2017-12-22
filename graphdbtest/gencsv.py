@@ -31,7 +31,7 @@ def main():
     m = Monitoring()
     if query:
         if command or database or experiment:
-            print("WARN: Parameter query was )
+            print("WARN: Parameter query was set, other will be ignored.")
     elif:
         query = m.getReportQuery(command, database, experiment)
     print(query)

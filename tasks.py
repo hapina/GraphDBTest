@@ -14,24 +14,22 @@ def usage(ctx):
     print ("For information about infividual task use:\n\tinvoke --help <task>\n\tinvoke -h <task>")
 
 @task
-def clean(ctx):
-    """ Clean enviroment
-        - remove temporary files
+def install(ctx, database=None):
+    """ Install graph database and prepare enviroment for testing
+        - install graph database 
+        - prepare and set database for testing
+        - insert data about new graph database into monitoring
+        
+        example: invoke install -d orientdb
     """
-    print("clean")
-
-@task
-def install(ctx, database):
-    """ Prepare enviroment for run experiments
-        - isntall python3, pip and required python libraries
-        - install relation database (PostgreSQL) for storing results of experiments
-        - prepare database structure and run the initial load
-        - prepare structure
-    """
-    if database is 'orientdb':    
+    if not database:
+        run('invoke --help install')
+    if database == 'orientdb':    
         if __debug__:
             print(">>> Install OrientDB")
-        run('cd graphdbtest/orientdb && ./install.sh')
+        run('./environment/gdb/orientdb_install.sh && cd graphdbtest && python3 insertgdb.py orientdb')
+    else:
+        print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
 
 @task
 def debug(ctx, experimentConfig=None, graphDatabaseName=None):

@@ -3,7 +3,7 @@ import sys
 import time
 from datetime import date
 
-from monitoring_conf import *
+from .monitoring_conf import *
 
 class Data:
     def __init__(self, timestamp, exper_name, gdb_name, status, repetition, run_time, size_before, size_after):
