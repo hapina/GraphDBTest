@@ -1,5 +1,5 @@
 from invoke import task, run
-from datetime import date
+import time
 import os
 import sys
 
@@ -9,9 +9,11 @@ GRAPH_DATABASES=['orientdb', 'arangodb']
 @task
 def usage(ctx):
     """ Basic task information
+    
+        Example: invoke usage
     """
     run('invoke -l')
-    print ("For information about infividual task use:\n\tinvoke --help <task>\n\tinvoke -h <task>")
+    print ("For information about individual task use:\n\tinvoke --help <task>\n\nExamle: invoke --help install\n")
 
 @task
 def install(ctx, database=None):
@@ -20,7 +22,7 @@ def install(ctx, database=None):
         - prepare and set database for testing
         - insert data about new graph database into monitoring
         
-        example: invoke install -d orientdb
+        Example: invoke install -d orientdb
     """
     if not database:
         run('invoke --help install')
@@ -34,7 +36,10 @@ def install(ctx, database=None):
 def conf(ctx):
     """Check and store new configuration
         - check directory /config
+        - set configuration
         - store new configuration into monitoring
+        
+        Example: invoke conf
     """
     directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
     configs = os.listdir(directory)
@@ -44,9 +49,12 @@ def conf(ctx):
 @task
 def debug(ctx, experimentConfig=None, graphDatabaseName=None):
     """ Run experiment in debug mode
+        Duplicity with invoke start, but you can see more information in terminal
         - both arguments are mandatory 
         - graphDatabaseName: name of graph database 
         - experimentConfig: experiment configuration file path
+        
+        Example: invoke debug -d orientdb -e /path/e_select_001.conf
     """
     if not graphDatabaseName or not experimentConfig:
         error(101, "Not found mandatory arguments", "debug")
@@ -58,6 +66,8 @@ def start(ctx, experimentConfig=None, graphDatabaseName=None):
         - both arguments are mandatory 
         - graphDatabaseName: name of graph database 
         - experimentConfig: experiment configuration file path
+        
+        Example: invoke start -d orientdb -e /path/e_select_001.conf
     """
     if not graphDatabaseName or not experimentConfig:
         error(101, "Not found mandatory arguments", "start")
@@ -65,7 +75,10 @@ def start(ctx, experimentConfig=None, graphDatabaseName=None):
     
 @task
 def test(ctx):
-    """ Run all experiments defined in /config directory
+    """ Caution: Run sequence of all test
+        Run each defined experiment in /config directory in sequence mode for each installed database
+        
+        Example: invoke test
     """
     if __debug__:
         print(">>> TESTING <<<")
@@ -79,40 +92,38 @@ def test(ctx):
             i+=1
             if __debug__:
                 print(">>>> Test no. " + str(i) + ", " + db + ", " + conf )
-            debug(ctx, conf, db)
+            start(ctx, conf, db)
             
 @task
 def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
     """ Generate experiments stats to CSV file 
-        You can choose from these options:
-        - command - NOT IMPLEMENTED YET stats relating to experiment type (select / import / create)
-        - database - NOT IMPLEMENTED YET stats relating to particular database (orientdb / titandb / arangodb)
-        - experiment - NOT IMPLEMENTED YET stats relating to particural experiment (ex_select_001.conf etc.)
-        - query - you can create your own report with using sql query
+        You can generate all stats (without parameters) or you can choose from these options:
+        - command - Stats relating to experiment type (select / import / create)
+        - database - Stats relating to particular database (orientdb / titandb / arangodb)
+        - experiment - Stats relating to particural experiment (ex_select_001.conf etc.)
+        - query - Create your own report with using sql query. In this case other parameters will be ignored. Notice the SQL command is used without semicolon bellow.
         
-        Example: invoke csv -q "select * from experiment"
-        (Notice the SQL command is used without semicolon.)
+        Example: 
+        invoke csv 
+        invoke csv -d orientdb -e e_select_001.conf -c select
+        invoke csv -q "select * from experiment" 
     """
     if not fileName:
-        fileName = "/tmp/report_" + str(date.today()) + ".csv"
+        fileName = "/tmp/report_{}.csv".format(time.strftime("%Y-%m-%d'T'%H:%M:%S"))
     options = params = ""
 
     if command:
-        #params += " -c {}".format(command)
-        print("WARN: param command not implemented yet. Please use parameter query for your own SQL command.")
+        params += " -c {}".format(command)
     if database:
-        #params += " -d {}".format(database) 
-        print("WARN: param database not implemented yet. Please use parameter query for your own SQL command.")
+        params += " -d {}".format(database) 
     if experiment:
-        #params += " -e {}".format(experiment)
-        print("WARN: param experiment not implemented yet. Please use parameter query for your own SQL command.")
+        params += " -e {}".format(experiment)
     if query:
         params += ' -q "{}"'.format(query)
-    if params:
-        run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
-    else:
-        print('WARN: missing parameters, see invoke --help csv')
-        run('invoke --help csv')
+    run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
+    #else:
+     #   print('WARN: missing parameters, see invoke --help csv')
+      #  run('invoke --help csv')
         
 @task
 def png(ctx):

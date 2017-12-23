@@ -163,18 +163,21 @@ class Monitoring:
         return True
     
     def getReportQuery(self, command=None, database=None, experiment=None):
-        query = "SELECT * FROM records WHERE status='OK'"
+        condition = "status='OK'"
         if experiment:
-            query += " AND exper_id='{}'".format(experiment)
+            condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
-            query += " AND gdb_id='{}'".format(database)
+            condition += " AND gr.gdb_name='{}'".format(database)
         if command:
-            query += " AND type_id='{}'".format(command)
-        query += " ORDER BY timestamp"
+            condition += " AND ty.type_name='{}'".format(command)
+            
+        query = REPORT_ITERATION.format(cond=condition)
+        if __debug__:
+            print(">>> REPORT QUERY: '{}'".format(query))
         return query
     
     def copyToCSV(self, query, csvFile):
-        copyQuery = "COPY ({}) TO STDOUT WITH CSV".format(query)
+        copyQuery = "COPY ({}) TO STDOUT WITH CSV HEADER".format(query)
         try:
             with self.connection() as cursor:
                 with open(csvFile, 'w') as f:

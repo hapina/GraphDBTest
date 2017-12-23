@@ -33,8 +33,9 @@ def main():
             print("WARN: Parameter query was set, other will be ignored.")
     if not query:
         query = m.getReportQuery(command, database, experiment)
-    print(query)
+    
     m.copyToCSV(query, fileName)
+    
     
 if __name__ == "__main__":
 	main()

@@ -21,8 +21,6 @@ def select(gdb, rec, mon):
         rec['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
         rec['iter_number'] = i+1
         rec['value']['run_time'] = (time.time()-start_time)
-        rec['value']['start_size'] = 0.0
-        rec['value']['end_size'] = 0.0 
         if __debug__:
             print(">>>> Insert Iteration: {}".format(rec))
         rec['iter_id'] = mon.insertIteration(rec)
