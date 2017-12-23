@@ -75,21 +75,27 @@ def test(ctx):
 def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
     """ Generate experiments stats to CSV file 
         You can choose from these options:
-        - command - stats relating to experiment type (select / import / create)
-        - database - stats relating to particular database (orientdb / titandb / arangodb)
-        - experiment - stats relating to particural experiment (ex_select_001.conf etc.)
+        - command - NOT IMPLEMENTED YET stats relating to experiment type (select / import / create)
+        - database - NOT IMPLEMENTED YET stats relating to particular database (orientdb / titandb / arangodb)
+        - experiment - NOT IMPLEMENTED YET stats relating to particural experiment (ex_select_001.conf etc.)
         - query - you can create your own report with using sql query
+        
+        Example: invoke csv -q "select * from experiment"
+        (Notice the SQL command is used without semicolon.)
     """
     if not fileName:
         fileName = "/tmp/report_" + str(date.today()) + ".csv"
     options = params = ""
 
     if command:
-        params += " -c {}".format(command)
+        #params += " -c {}".format(command)
+        print("WARN: param command not implemented yet. Please use parameter query for your own SQL command.")
     if database:
-        params += " -d {}".format(database) 
+        #params += " -d {}".format(database) 
+        print("WARN: param database not implemented yet. Please use parameter query for your own SQL command.")
     if experiment:
-        params += " -e {}".format(experiment)
+        #params += " -e {}".format(experiment)
+        print("WARN: param experiment not implemented yet. Please use parameter query for your own SQL command.")
     if query:
         params += ' -q "{}"'.format(query)
     if params:

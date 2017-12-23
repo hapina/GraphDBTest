@@ -6,20 +6,27 @@ from orientdb.orientdb_api import GraphDB
 from setupConf import Configuration
 from monitoring.monitoring import Monitoring
 
-def select(gdb, rec):
-    for i in range(int(rec['repetition'])):
+def select(gdb, rec, mon):
+    print("----------")
+    for i in range(int(rec['iteration_count'])):
         start_time = time.time()
         if __debug__:
-            print(">>> " + str(i) + ". SELECT")
+            print(">>> " + str(i+1) + ". SELECT")
         if not gdb.runCommand(rec['commands']):
             print("WARN: Failed runCommand for " + rec['gdb_name'] )
         else:
             rec['status'] = "OK"
-        rec['run_time'] = (time.time()-start_time)
-        rec['size_before'] = 0.0
-        rec['size_after'] = 0.0 
-        mon = Monitoring()
-        mon.insertRecord(rec)
+            if __debug__:
+                print(">>>> OK gdb.runCommand")
+        rec['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
+        rec['iter_number'] = i+1
+        rec['value']['run_time'] = (time.time()-start_time)
+        rec['value']['start_size'] = 0.0
+        rec['value']['end_size'] = 0.0 
+        if __debug__:
+            print(">>>> Insert Iteration: {}".format(rec))
+        rec['iter_id'] = mon.insertIteration(rec)
+        mon.insertValue(rec)
 
 
 def main():
@@ -45,26 +52,31 @@ def main():
     exper.setupConf() 
     #monitoring = True if exper.get('monitoring')=='yes' else False
     record = dict()
-    record['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
-    record['exper_config_file'] = experiment[(experiment.rfind('/') + 1):]
-    record['gdb_name'] = exper.get('db_name')
-    record['database'] = database
-    record['repetition'] = exper.get('repetition')
-    record['experiment_type'] = exper.get('experiment_type')
+    record['run_date'] = time.strftime("%Y-%m-%d %H:%M:%S")
+    record['iteration_count'] = exper.get('iteration')
+    record['conf_name'] = experiment[(experiment.rfind('/') + 1):]
+    record['database'] = exper.get('db_name')
+    record['gdb_name'] = database
+    record['type_name'] = exper.get('experiment_type')
     record['status'] = 'ERR'
+    record['value'] = dict()
     
     #------------------------------ Graph database
     if database=="orientdb":
-        g = GraphDB(record['gdb_name'])
+        g = GraphDB(record['database'])
         g.setup()
     else:
         print("WARN: Not implemented yet.")
         return 3
     
     #------------------------------ Run Experiment
-    if record['experiment_type'] == 'select':
+    if record['type_name'] == 'select':
         record['commands'] = exper.get('commands').split("|")
-        select(g, record)
+        mon = Monitoring()
+        record['exper_id'] = mon.insertExperiment(record)
+        if __debug__:
+            print(">>>> Insert Experiment: {}".format(record))
+        select(g, record, mon)
     else:
         print("WARN: Not implemented yet.")  
         return 3

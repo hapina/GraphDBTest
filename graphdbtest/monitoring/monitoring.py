@@ -59,7 +59,10 @@ class Monitoring:
     
     def getId(self, table, name, colId, colName):
         id = self.execute("SELECT {cId} FROM {tab} WHERE {cN}='{n}';".format(tab=table, n=name, cId=colId, cN=colName))
-        return id[0][0]
+        if type(id)==bool:
+            return 0
+        else:
+            return id[0][0]
     
     def insertDatabase(self, data):
         """
@@ -89,11 +92,12 @@ class Monitoring:
         if __debug__:
             print("INFO: insert Experiment ({})".format(insertData))
         tableDefinition = self.expTab + " (run_date, iteration_count, gdb_id, conf_id) "
-        print(self.insert(tableDefinition, insertData))
-        sequence = "experiment_exper_id_seq"
-        print(self.execute("SELECT currval('experiment_exper_id_seq');"))
-        return "ok"
-    
+        insRes = self.insert(tableDefinition, insertData)
+        if insRes == True:
+            seq = self.execute("SELECT last_value from experiment_exper_id_seq;")[0][0]
+        else: 
+            seq = 0
+        return seq
 
     def insertIteration(self, data):
         """
@@ -103,14 +107,26 @@ class Monitoring:
         if __debug__:
             print("INFO: insert Iteration ({})".format(insertData))
         tableDefinition = self.iteTab + " (iter_timestamp, iter_number, status, exper_id) "
-        return self.insert(tableDefinition, insertData)
+        insRes = self.insert(tableDefinition, insertData)
+        if insRes == True:
+            seq = self.execute("SELECT last_value from iteration_iter_id_seq;")[0][0]
+        else: 
+            seq = 0
+        return seq
 
     def insertValue(self, data):
         """
         insertValue
-        """      
-        tableDefinition = self.valueTable + " (value_name, exper_id) "
-        return self.insert(tableDefinition, data)
+        """ 
+        for val in data['value']:
+            if 'value' in data:
+                data['meas_id'] = self.getId(self.measTab, val, 'meas_id', 'meas_name') 
+            insertData = [data['iter_id'], data['meas_id'], data['value'][val]]
+            if __debug__:
+                print("INFO: insert Value ({})".format(insertData))
+            tableDefinition = self.valTab + " (iter_id, meas_id, value) "
+            result = self.insert(tableDefinition, insertData)
+        return "ok"
 
     def exportTable(self, tableName, path = "~/Downloads", separator = ";"):    
         """
