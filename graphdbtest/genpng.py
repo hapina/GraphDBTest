@@ -1,5 +1,8 @@
 import sys
 import getopt
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from monitoring.monitoring import Monitoring 
 
 def main():
@@ -28,8 +31,19 @@ def main():
             assert False, "unhandled option."
         
     #------------------------------ Generate data for plotting
-    print("WARN: Not implemented yet.")
-
+    m = Monitoring()
+    data = m.getGraphData(database)
+    if __debug__: 
+        print(data)
+    plt.plot(data, color='blue', label=database)
+    plt.title("Experiment: run_time")
+    plt.xlabel("number of iteration")
+    plt.ylabel("run_time (seconds)")
+    plt.legend()
+    plt.savefig(fileName)
+    print("INFO: PNG file was created - {}".format(fileName))
+    print("WARN: Only prototype with static query for now!")
+    
 if __name__ == "__main__":
 	main()
     

@@ -12,6 +12,7 @@ apt-get -y install python3-pip
 
 #python3 tools
 pip3 install invoke
+pip3 install python3-seaborn
 
 #java JDK
 #apt-get -y install default-jdk

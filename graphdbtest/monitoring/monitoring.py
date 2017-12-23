@@ -176,6 +176,20 @@ class Monitoring:
             print(">>> REPORT QUERY: '{}'".format(query))
         return query
     
+    def getGraphData(self, database=None, command=None , experiment=None):
+        condition = "status='OK'"
+        if experiment:
+            condition += " AND conf.conf_name='{}'".format(experiment)
+        if database:
+            condition += " AND gr.gdb_name='{}'".format(database)
+        if command:
+            condition += " AND ty.type_name='{}'".format(command)
+            
+        query = TMP_PNG_DATA.format(cond=condition)
+        if __debug__:
+            print(">>> REPORT QUERY: '{}'".format(query))
+        return self.execute(query)
+    
     def copyToCSV(self, query, csvFile):
         copyQuery = "COPY ({}) TO STDOUT WITH CSV HEADER".format(query)
         try:

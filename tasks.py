@@ -101,10 +101,11 @@ def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=
         - command - Stats relating to experiment type (select / import / create)
         - database - Stats relating to particular database (orientdb / titandb / arangodb)
         - experiment - Stats relating to particural experiment (ex_select_001.conf etc.)
-        - query - Create your own report with using sql query. In this case other parameters will be ignored. Notice the SQL command is used without semicolon bellow.
+        - query - Create your own report with using sql query. In this case other parameters will be ignored (except fileName). Notice the SQL command is used without semicolon bellow.
         
         Example: 
         invoke csv 
+        invoke csv -f /path/report.csv
         invoke csv -d orientdb -e e_select_001.conf -c select
         invoke csv -q "select * from experiment" 
     """
@@ -123,13 +124,25 @@ def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=
     run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
         
 @task
-def png(ctx):
+def png(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
     """ Generate graph in PNG file 
-        - NOT IMPLEMENTED YET
         
         Example: invoke png
+                 invoke png -f /path/fig.png
     """
-    run("cd graphdbtest && python3 genpng.py")
+    if not fileName:
+        fileName = "/tmp/fig_{}.png".format(time.strftime("%Y-%m-%d'T'%H:%M:%S"))
+    options = params = ""
+
+    if command:
+        params += " -c {}".format(command)
+    if database:
+        params += " -d {}".format(database) 
+    if experiment:
+        params += " -e {}".format(experiment)
+    if query:
+        params += ' -q "{}"'.format(query)
+    run("cd graphdbtest && python3 {opts} genpng.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
     
 def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 
