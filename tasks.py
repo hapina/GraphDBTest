@@ -30,7 +30,17 @@ def install(ctx, database=None):
         run('./environment/gdb/orientdb_install.sh && cd graphdbtest && python3 insertgdb.py orientdb')
     else:
         print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
-
+@task
+def conf(ctx):
+    """Check and store new configuration
+        - check directory /config
+        - store new configuration into monitoring
+    """
+    directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
+    configs = os.listdir(directory)
+    for conf in configs:
+        run('cd graphdbtest && python3 insertConf.py {}'.format(conf))
+    
 @task
 def debug(ctx, experimentConfig=None, graphDatabaseName=None):
     """ Run experiment in debug mode

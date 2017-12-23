@@ -71,6 +71,14 @@ class Monitoring:
         insert = [data['gdb_name'], data['gdb_description'], data['gdb_version']]
         tableDefinition = self.gdbTab + " (gdb_name, gdb_description, gdb_version) "
         return self.insert(tableDefinition, insert)
+    
+    def insertConfiguration(self, conf_name):
+        """
+        insertConfiguration
+        """
+        insert = [conf_name]
+        tableDefinition = self.confTab + " (conf_name) "
+        self.insert(tableDefinition, insert)        
 
     def insertExperiment(self, data):
         """
