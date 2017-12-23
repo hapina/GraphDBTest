@@ -121,15 +121,15 @@ def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=
     if query:
         params += ' -q "{}"'.format(query)
     run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
-    #else:
-     #   print('WARN: missing parameters, see invoke --help csv')
-      #  run('invoke --help csv')
         
 @task
 def png(ctx):
     """ Generate graph in PNG file 
-        - choose experiment or database 
+        - NOT IMPLEMENTED YET
+        
+        Example: invoke png
     """
+    run("cd graphdbtest && python3 genpng.py")
     
 def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 
