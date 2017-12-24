@@ -78,7 +78,12 @@ class Monitoring:
         """
         insert = [conf_name]
         tableDefinition = self.confTab + " (conf_name) "
-        self.insert(tableDefinition, insert)        
+        insRes = self.insert(tableDefinition, insert)  
+        if insRes == True:
+            seq = self.execute("SELECT last_value from configuration_conf_id_seq;")[0][0]
+        else: 
+            seq = 0
+        return seq
 
     def insertExperiment(self, data):
         """
@@ -135,6 +140,19 @@ class Monitoring:
             tableDefinition = self.valTab + " (iter_id, meas_id, value) "
             result = self.insert(tableDefinition, insertData)
         return "ok"
+    
+    def insertTypes(self, type_name, conf_id, meas_id):
+        """
+        insertTypes
+        """ 
+        insert = [type_name, conf_id, meas_id]
+        tableDefinition = self.typeTab + " (type_name, conf_id, meas_id) "
+        insRes = self.insert(tableDefinition, insert)  
+        if insRes == True:
+            seq = self.execute("SELECT last_value from types_type_id_seq;")[0][0]
+        else: 
+            seq = 0
+        return seq
 
     def exportTable(self, tableName, path = "~/Downloads", separator = ";"):    
         """

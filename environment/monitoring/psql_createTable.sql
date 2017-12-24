@@ -20,7 +20,7 @@ CREATE TABLE CONFIGURATION (
 );
 SELECT SETVAL('configuration_conf_id_seq',1);
 
-CREATE TYPE REQUEST_TYPE AS ENUM ('select', 'insert', 'create', 'delete', 'drop');
+CREATE TYPE REQUEST_TYPE AS ENUM ('select', 'insert', 'create', 'delete', 'drop', 'import', 'export');
 
 CREATE TABLE TYPES (
     type_id SERIAL PRIMARY KEY, 

@@ -51,7 +51,6 @@ def main():
     #monitoring = True if exper.get('monitoring')=='yes' else False
     record = dict()
     record['run_date'] = time.strftime("%Y-%m-%d %H:%M:%S")
-    record['iteration_count'] = exper.get('iteration')
     record['conf_name'] = experiment[(experiment.rfind('/') + 1):]
     record['database'] = exper.get('db_name')
     record['gdb_name'] = database
@@ -68,13 +67,59 @@ def main():
         return 3
     
     #------------------------------ Run Experiment
-    if record['type_name'] == 'select':
+    if record['type_name'] == 'create':
+        if g.createDB():
+            record['status'] = "OK"
+        mon = Monitoring()
+        record['iteration_count'] = 1
+        record['exper_id'] = mon.insertExperiment(record)
+        if __debug__:
+            print(">>>> Insert Experiment: {}".format(record))
+        record['iter_timestamp'] = record['run_date']
+        record['iter_number'] = 1
+        record['iter_id'] = mon.insertIteration(record)
+        
+    elif record['type_name'] == 'insert':
+        print("WARN: Not implemented yet.")  
+        
+    elif record['type_name'] == 'select':
+        record['iteration_count'] = exper.get('iteration')
         record['commands'] = exper.get('commands').split("|")
         mon = Monitoring()
         record['exper_id'] = mon.insertExperiment(record)
         if __debug__:
             print(">>>> Insert Experiment: {}".format(record))
         select(g, record, mon)
+        
+    elif record['type_name'] == 'delete':
+        print("WARN: Not implemented yet.")  
+        
+    elif record['type_name'] == 'drop':
+        if g.dropDB():
+            record['status'] = "OK"
+        mon = Monitoring()
+        record['iteration_count'] = 1
+        record['exper_id'] = mon.insertExperiment(record)
+        if __debug__:
+            print(">>>> Insert Experiment: {}".format(record))
+        record['iter_timestamp'] = record['run_date']
+        record['iter_number'] = 1
+        record['iter_id'] = mon.insertIteration(record)
+        
+    elif record['type_name'] == 'import':
+        print("WARN: Not implemented yet.") 
+    elif record['type_name'] == 'export':
+        if g.exportDB():
+            record['status'] = "OK"
+        mon = Monitoring()
+        record['iteration_count'] = 1
+        record['exper_id'] = mon.insertExperiment(record)
+        if __debug__:
+            print(">>>> Insert Experiment: {}".format(record))
+        record['iter_timestamp'] = record['run_date']
+        record['iter_number'] = 1
+        record['iter_id'] = mon.insertIteration(record)
+        
     else:
         print("WARN: Not implemented yet.")  
         return 3

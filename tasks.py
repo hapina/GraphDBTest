@@ -44,7 +44,7 @@ def conf(ctx):
     directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
     configs = os.listdir(directory)
     for conf in configs:
-        run('cd graphdbtest && python3 insertConf.py {}'.format(conf))
+        run('cd graphdbtest && python3 insertConf.py {dir} {conf}'.format(dir=directory,conf=conf))
     
 @task
 def debug(ctx, experimentConfig=None, graphDatabaseName=None):
@@ -83,7 +83,7 @@ def test(ctx):
     if __debug__:
         print(">>> TESTING <<<")
     directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
-    configs = os.listdir(directory)
+    configs = sorted(os.listdir(directory))
     databases = GRAPH_DATABASES
     i=0
     for conf in configs:
@@ -92,7 +92,7 @@ def test(ctx):
             i+=1
             if __debug__:
                 print(">>>> Test no. " + str(i) + ", " + db + ", " + conf )
-            start(ctx, conf, db)
+            debug(ctx, conf, db)
             
 @task
 def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
