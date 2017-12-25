@@ -12,7 +12,7 @@ def select(gdb, rec, mon):
         start_time = time.time()
         if __debug__:
             print(">>> " + str(i+1) + ". SELECT")
-        if not gdb.runCommand(rec['commands']):
+        if not gdb.runCommands(rec['commands']):
             print("WARN: Failed runCommand for " + rec['gdb_name'] )
         else:
             rec['status'] = "OK"
@@ -24,7 +24,7 @@ def select(gdb, rec, mon):
         if __debug__:
             print(">>>> Insert Iteration: {}".format(rec))
         rec['iter_id'] = mon.insertIteration(rec)
-        mon.insertValue(rec)
+        mon.insertValues(rec)
 
 
 def main():
@@ -67,9 +67,16 @@ def main():
         return 3
     
     #------------------------------ Run Experiment
-    if record['type_name'] == 'create':
-        if g.createDB():
+    if record['type_name'] in ['create','drop']:
+        start_time = time.time()
+        if record['type_name'] == 'create':
+            res = g.createDB()
+        if record['type_name'] == 'drop':
+            res = g.dropDB()
+        if res:
             record['status'] = "OK"
+            record['value']['run_time'] = (time.time()-start_time)
+            record['value']['size'] = g.sizedb() 
         mon = Monitoring()
         record['iteration_count'] = 1
         record['exper_id'] = mon.insertExperiment(record)
@@ -78,9 +85,31 @@ def main():
         record['iter_timestamp'] = record['run_date']
         record['iter_number'] = 1
         record['iter_id'] = mon.insertIteration(record)
+        mon.insertValues(record)
         
-    elif record['type_name'] == 'insert':
-        print("WARN: Not implemented yet.")  
+    elif record['type_name'] in ['insert','delete']:
+        record['iteration_count'] = 1
+        record['commands'] = exper.get('commands').split("|")
+        mon = Monitoring()
+        record['exper_id'] = mon.insertExperiment(record)
+        if __debug__:
+            print(">>>> Insert Experiment: {}".format(record))
+        record['value']['size'] = g.sizedb() 
+        start_time = time.time()
+        if not g.runCommands(record['commands']):
+            print("WARN: Failed runCommand for " + record['gdb_name'] )
+        else:
+            record['status'] = "OK"
+            if __debug__:
+                print(">>>> OK g.runCommand")
+            record['value']['size_after'] = g.sizedb() 
+        record['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
+        record['iter_number'] = 1
+        record['value']['run_time'] = (time.time()-start_time)
+        if __debug__:
+            print(">>>> Insert Iteration: {}".format(record))
+        record['iter_id'] = mon.insertIteration(record)
+        mon.insertValues(record)
         
     elif record['type_name'] == 'select':
         record['iteration_count'] = exper.get('iteration')
@@ -89,28 +118,18 @@ def main():
         record['exper_id'] = mon.insertExperiment(record)
         if __debug__:
             print(">>>> Insert Experiment: {}".format(record))
+        record['value']['size'] = g.sizedb() 
         select(g, record, mon)
-        
-    elif record['type_name'] == 'delete':
-        print("WARN: Not implemented yet.")  
-        
-    elif record['type_name'] == 'drop':
-        if g.dropDB():
-            record['status'] = "OK"
-        mon = Monitoring()
-        record['iteration_count'] = 1
-        record['exper_id'] = mon.insertExperiment(record)
-        if __debug__:
-            print(">>>> Insert Experiment: {}".format(record))
-        record['iter_timestamp'] = record['run_date']
-        record['iter_number'] = 1
-        record['iter_id'] = mon.insertIteration(record)
         
     elif record['type_name'] == 'import':
         print("WARN: Not implemented yet.") 
+        
     elif record['type_name'] == 'export':
+        start_time = time.time()
         if g.exportDB():
             record['status'] = "OK"
+            record['value']['run_time'] = (time.time()-start_time)
+            record['value']['size'] = g.sizedb() 
         mon = Monitoring()
         record['iteration_count'] = 1
         record['exper_id'] = mon.insertExperiment(record)
@@ -119,6 +138,7 @@ def main():
         record['iter_timestamp'] = record['run_date']
         record['iter_number'] = 1
         record['iter_id'] = mon.insertIteration(record)
+        mon.insertValues(record)
         
     else:
         print("WARN: Not implemented yet.")  

@@ -49,9 +49,7 @@ class Monitoring:
         query = "INSERT INTO "+ tableDefinition +" VALUES ('"
         for val in data:
             query += str(val) + "','"
-        query = query[:-2] + ")"  
-        if __debug__:
-            print(">>> Monitoring insert: {}".format(data))
+        query = query[:-2] + ")"
         return self.execute(query)
 
     def select(self, query):       
@@ -127,9 +125,9 @@ class Monitoring:
             seq = 0
         return seq
 
-    def insertValue(self, data):
+    def insertValues(self, data):
         """
-        insertValue
+        insertValues
         """ 
         for val in data['value']:
             if 'value' in data:

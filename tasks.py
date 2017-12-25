@@ -3,8 +3,8 @@ import time
 import os
 import sys
 
-REQUIREMENTS='requirements.txt'
 GRAPH_DATABASES=['orientdb', 'arangodb']
+CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
 
 @task
 def usage(ctx):
@@ -32,6 +32,7 @@ def install(ctx, database=None):
         run('./environment/gdb/orientdb_install.sh && cd graphdbtest && python3 insertgdb.py orientdb')
     else:
         print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
+
 @task
 def conf(ctx):
     """Check and store new configuration
@@ -41,10 +42,9 @@ def conf(ctx):
         
         Example: invoke conf
     """
-    directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
-    configs = os.listdir(directory)
+    configs = os.listdir(CONF_DIR)
     for conf in configs:
-        run('cd graphdbtest && python3 insertConf.py {dir} {conf}'.format(dir=directory,conf=conf))
+        run('cd graphdbtest && python3 insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=conf))
     
 @task
 def debug(ctx, experimentConfig=None, graphDatabaseName=None):
@@ -52,12 +52,13 @@ def debug(ctx, experimentConfig=None, graphDatabaseName=None):
         Duplicity with invoke start, but you can see more information in terminal
         - both arguments are mandatory 
         - graphDatabaseName: name of graph database 
-        - experimentConfig: experiment configuration file path
+        - experimentConfig: experiment configuration file from directory /config
         
-        Example: invoke debug -d orientdb -e /path/e_select_001.conf
+        Example: invoke debug -d orientdb -e /e_select_001.conf
     """
     if not graphDatabaseName or not experimentConfig:
         error(101, "Not found mandatory arguments", "debug")
+    run('python3 graphdbtest/insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=experimentConfig))
     runExperiment(ctx, graphDatabaseName, experimentConfig)
     
 @task
@@ -65,12 +66,13 @@ def start(ctx, experimentConfig=None, graphDatabaseName=None):
     """ Run graph database experiment
         - both arguments are mandatory 
         - graphDatabaseName: name of graph database 
-        - experimentConfig: experiment configuration file path
+        - experimentConfig: experiment configuration file from directory /config
         
-        Example: invoke start -d orientdb -e /path/e_select_001.conf
+        Example: invoke start -d orientdb -e /e_select_001.conf
     """
     if not graphDatabaseName or not experimentConfig:
         error(101, "Not found mandatory arguments", "start")
+    run('python3 graphdbtest/insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=experimentConfig))
     runExperiment(ctx, graphDatabaseName, experimentConfig, False)
     
 @task
@@ -80,19 +82,20 @@ def test(ctx):
         
         Example: invoke test
     """
+    conf(ctx)
+    if __debug__:
+        print(">>> Configuration checked")
     if __debug__:
         print(">>> TESTING <<<")
-    directory = os.path.dirname(os.path.realpath(__file__)) + '/config/'
-    configs = sorted(os.listdir(directory))
+    configs = sorted(os.listdir(CONF_DIR))
     databases = GRAPH_DATABASES
     i=0
-    for conf in configs:
-        conf = directory + conf
+    for cf in configs:
         for db in databases:
             i+=1
             if __debug__:
-                print(">>>> Test no. " + str(i) + ", " + db + ", " + conf )
-            debug(ctx, conf, db)
+                print(">>>> Test no. {i}, {db}, {cf}".format(i=i,db=db,cf=cf))
+            debug(ctx, cf, db)
             
 @task
 def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
@@ -150,13 +153,7 @@ def runExperiment(ctx, db=None, ex=None, debug=True):
     options=""
     if not debug:
         options += "-O"
-    run('cd graphdbtest && python3 {opts} runtest.py -d {db} -e {ex}'.format(opts=options, db=db, ex=ex) )    
-
-def requirements(ctx):
-    """ Pip installs all requirements, and if db arg is passed, the
-    requirements for that module as well 
-    """
-    run('python3 -m pip install -r {req}'.format(req=REQUIREMENTS))
+    run('cd graphdbtest && python3 {opts} runtest.py -d {db} -e {ex}'.format(opts=options, db=db, ex=CONF_DIR+ex) )    
 
 def error(errorCode=1, errorMessage=None, task=None):
     """ End task with error

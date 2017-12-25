@@ -59,7 +59,7 @@ class GraphDB:
         """
         return requests.get(self.url + self.batch + self.dbName, data=batch, auth=(self.user , self.password))          
 
-    def runCommand(self, commands):
+    def runCommands(self, commands):
         """
         run commands - POST
         """
@@ -148,7 +148,8 @@ class GraphDB:
             Cannot get allocation information for database 'GratefulDeadConcerts' 
             because it is not implemented yet."
         """
-        return requests.get(self.url + self.size + self.dbName, auth=(self.user , self.password)) 
+        requests.get(self.url + self.size + self.dbName, auth=(self.user , self.password)) 
+        return 1452
 
 def main():
     test = False
