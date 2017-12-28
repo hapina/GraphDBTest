@@ -6,26 +6,18 @@ from orientdb.orientdb_api import GraphDB
 from setupConf import Configuration
 from monitoring.monitoring import Monitoring
 
-def select(gdb, rec, mon):
+def runSelect(gdb, rec, mon):
+    start_time = time.time()
+    if not gdb.runCommands(rec['commands']):
+        print("WARN: Failed runCommand for " + rec['gdb_name'] )
+    else:
+        rec['status'] = "OK"
+    rec['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")  
+    rec['value']['run_time'] = (time.time()-start_time)
+    rec['iter_id'] = mon.insertIteration(rec)
+    mon.insertValues(rec)
     if __debug__:
-        print("----------")
-    for i in range(int(rec['iteration_count'])):
-        start_time = time.time()
-        if __debug__:
-            print(">>> " + str(i+1) + ". SELECT")
-        if not gdb.runCommands(rec['commands']):
-            print("WARN: Failed runCommand for " + rec['gdb_name'] )
-        else:
-            rec['status'] = "OK"
-        rec['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
-        rec['iter_number'] = i+1
-        rec['value']['run_time'] = (time.time()-start_time)
-        rec['iter_id'] = mon.insertIteration(rec)
-        mon.insertValues(rec)
-        if __debug__:
-            print(">>>> experiment: {}".format(rec))
-    if __debug__:
-        print("----------")
+        print(">>>> experiment: {}".format(rec))
 
 
 def main():
@@ -112,7 +104,15 @@ def main():
         mon = Monitoring()
         record['exper_id'] = mon.insertExperiment(record)
         record['value']['size'] = g.sizedb() 
-        select(g, record, mon)
+        if __debug__:
+            print("----------")
+        for i in range(int(record['iteration_count'])):
+            if __debug__:
+                print(">>> " + str(i+1) + ". SELECT")
+            record['iter_number'] = i+1
+            runSelect(g, record, mon)
+        if __debug__:
+            print("----------")
         
     elif record['type_name'] == 'import':
         print("WARN: Not implemented yet.") 
