@@ -77,47 +77,15 @@ class GraphDB:
         if __debug__:
             print(">>>> ORIENTDB run commands: OK")
         return True
-
-    def exportToJSON(self, path = "/tmp"):
-        """
-        exportToCSV - POST
-        """
-        headers = {'Accept': 'text/json'}
-        commands = ("g.V", "g.E")
-        for com in commands:
-        #com = "g.V"
-            res = requests.post(self.url + self.command + self.dbName + "/gremlin/", data=com, auth=(self.user , self.password), headers=headers) 
-            items = str(json.loads(res.text)['result'])
-           # print(items)
-            if not res or res.status_code!=200 :
-                print("WARN: " + com)
-                return False
-            exportFile = path + "/exp_" + self.dbName + "_" + com + ".json" 
-            with open(exportFile, 'w') as f:    
-                f.write(items)   
-            print("JSON Export: " + exportFile)
-        return True
     
-    def exportDB(self, path = "/tmp"):    
-        """
-        exportDB - GET
-        """
-        res = requests.get(self.url + self.export + self.dbName, auth=(self.user , self.password))  
-        if res and res.status_code == 200:
-            exportFile = path + "/exp_" + self.dbName + ".json" 
-            try:
-                content = gzip.decompress(res.content)
-                with open(exportFile, 'wb') as f:    
-                    f.write(content)            
-                result = True
-            except Exception as e:
-                print(type(e))
-                result = False
-        else: 
-            if res:
-                print(str(res.status_code) + ": " + res.json())
-            result = False
-        return result
+    def exportJSON(self, path = "/tmp"):
+        exportFile = path + "/exp_" + self.dbName + ".json" 
+        command = ["g.saveGraphSON('{}')".format(exportFile)]
+        return self.runCommands(command)
+    
+    def importJSON(self, importFile):
+        command = ["g.loadGraphSON('{}')".format(importFile)]
+        return self.runCommands(command)
         
     def dropDB(self):
         """

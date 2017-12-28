@@ -60,12 +60,16 @@ def main():
         return 3
     
     #------------------------------ Run Experiment
-    if record['type_name'] in ['create','drop']:
+    if record['type_name'] in ['create','drop', 'import', 'export']:
         start_time = time.time()
         if record['type_name'] == 'create':
             res = g.createDB()
         if record['type_name'] == 'drop':
             res = g.dropDB()
+        if record['type_name'] == 'import':
+            res = g.importJSON(exper.get('import_file'))
+        if record['type_name'] == 'export':
+            res = g.exportJSON(exper.get('export_path'))
         if res:
             record['status'] = "OK"
             record['value']['run_time'] = (time.time()-start_time)
@@ -112,30 +116,12 @@ def main():
             record['iter_number'] = i+1
             runSelect(g, record, mon)
         if __debug__:
-            print("----------")
-        
-    elif record['type_name'] == 'import':
-        print("WARN: Not implemented yet.") 
-        
-    elif record['type_name'] == 'export':
-        start_time = time.time()
-        if g.exportDB():
-            record['status'] = "OK"
-            record['value']['run_time'] = (time.time()-start_time)
-            record['value']['size'] = g.sizedb() 
-        mon = Monitoring()
-        record['iteration_count'] = 1
-        record['exper_id'] = mon.insertExperiment(record)
-        record['iter_timestamp'] = record['run_date']
-        record['iter_number'] = 1
-        record['iter_id'] = mon.insertIteration(record)
-        mon.insertValues(record)
-        if __debug__:
-            print(">>>> experiment: {}".format(record))
-        
+            print("----------")                
     else:
-        print("WARN: Not implemented yet.")  
+        print("WARN: Not implemented.")  
         return 3
+    
+    return 0
 
 if __name__ == "__main__":
     main()
