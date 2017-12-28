@@ -37,6 +37,8 @@ class GraphDB:
             schema = self.defaultSchema
         res = requests.post(self.url + self.create + self.dbName + "/plocal", data=schema, auth=(self.user , self.password))    
         self.dbExists = (True if (res.status_code==200) else False)
+        if __debug__:
+            print(">>> ORIENTDB create database: OK")
         return self.dbExists
         
     def importData(self, importFile):
@@ -64,10 +66,16 @@ class GraphDB:
         run commands - POST
         """
         for com in commands:
-            res = requests.post(self.url + self.command + self.dbName + "/gremlin/", data=com, auth=(self.user , self.password))          
+            if __debug__:
+                print(">>>> ORIENTDB command: -u {u}:{p} {url}{com}{db}/gremlin {data}".format(u=self.user, p=self.password, url=self.url, com=self.command, db=self.dbName, data=com))            
+            res = requests.post(self.url + self.command + self.dbName + "/gremlin/", data=com, auth=(self.user , self.password)) 
             if not res or res.status_code!=200 :
-                print("WARN: " + com)
+                print("WARN: OrientDB failed for command {res}:'{com}'".format(res=res, com=com))
+                if __debug__:
+                    print("WARN: OrientDB error response: '{}'".format(res.json())) 
                 return False
+        if __debug__:
+            print(">>>> ORIENTDB run commands: OK")
         return True
 
     def exportToJSON(self, path = "/tmp"):
@@ -90,8 +98,6 @@ class GraphDB:
             print("JSON Export: " + exportFile)
         return True
     
-
-
     def exportDB(self, path = "/tmp"):    
         """
         exportDB - GET

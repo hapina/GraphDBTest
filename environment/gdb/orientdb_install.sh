@@ -2,15 +2,22 @@
 #
 
 GraphDBTest_home=$(dirname $(readlink -f $0))
+Version=$1
+
 cd /opt
 
-#sudo wget https://bit.ly/orientdb-ce-imps-2-2-29-linux -O orientdb-community-2.2.29.zip
-sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-2.2.29.zip 
-#sudo rm orientdb-community-2.2.29.zip 
-sudo ln -s orientdb-community-importers-2.2.29/ orientdb
+# verze 2.2.29, 2.2.31, unstable 3.0.0RC1
+[[ $Version == v2.0 ]] && sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-2.2.29.zip
+[[ $Version == v2.2 ]] && sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-2.2.31.zip  
+[[ $Version == v3.0 ]] && sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-importers-3.0.0RC1.tar.gz  
+sudo rm orientdb
+[[ $Version == v2.0 ]] && sudo ln -s /opt/orientdb-community-importers-2.2.29/ /opt/orientdb
+[[ $Version == v2.2 ]] && sudo ln -s /opt/orientdb-community-importers-2.2.31/ /opt/orientdb
+[[ $Version == v3.0 ]] && sudo ln -s /opt/orientdb-community-importers-3.0.0RC1/ /opt/orientdb
 
-sudo sed -i "s/<storages>/<storages><storage path='memory:temp' name='temp' userName='admin' userPassword='admin' loaded-at-startup='true' \/>/" orientdb/config/orientdb-server-config.xml
-sudo sed -i "s/<users>/<users><user name='orientuser' password='password' resources='*' \/>/" orientdb/config/orientdb-server-config.xml
+
+sudo sed -i "s/<storages>/<storages><storage path='memory:temp' name='temp' userName='admin' userPassword='admin' loaded-at-startup='true' \/>/" /opt/orientdb/config/orientdb-server-config.xml
+sudo sed -i "s/<users>/<users><user name='orientuser' password='password' resources='*' \/>/" /opt/orientdb/config/orientdb-server-config.xml
 #--------
 # error "Cannot allocate memory"
 # in /opt/orientdb/bin/server.sh to change ORIENTDB_OPTS_MEMORY="-Xms128m -Xmx256m"

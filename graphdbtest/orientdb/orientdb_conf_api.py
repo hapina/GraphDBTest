@@ -11,8 +11,8 @@ GRAPHDB_DBNAME = "firstDB"
 
 # access from HTTP API
 GRAPHDB_API_URL = "http://localhost:2480"
-GRAPHDB_API_USER = "root"
-GRAPHDB_API_PASS = "root"
+GRAPHDB_API_USER = "orientuser"
+GRAPHDB_API_PASS = "password"
 GRAPHDB_API_DBNAME = ""
 GRAPHDB_DB_LIST = "/listDatabases"  # GET
 GRAPHDB_DB_CREATE = "/database/"    # POST

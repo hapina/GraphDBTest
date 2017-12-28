@@ -45,18 +45,30 @@ class Monitoring:
             self.dbConnection.close()
         return result if result else True
     
-    def insert(self, tableDefinition, data):
-        query = "INSERT INTO "+ tableDefinition +" VALUES ('"
-        for val in data:
-            query += str(val) + "','"
-        query = query[:-2] + ")"
-        return self.execute(query)
+    def insert(self, tableName, data, update=None):
+        columnName = insertData = insertCondition = ""
+        if update:
+            updateData = ""
+            for key, val in data.items():
+                updateData += "{key}='{val}', ".format(val=val, key=key)
+            updateQuery = "UPDATE {tab} SET {data} WHERE {cond}".format(tab=tableName, data=updateData[:-2], cond=update)
+            insertCondition = "WHERE NOT EXISTS (SELECT 1 FROM {tab} WHERE {cond})".format(tab=tableName, cond=update)
+            if __debug__:
+                print(">>>> MONITORING Insert SQL: {}".format(updateQuery))
+            self.execute(updateQuery)
+        for key, val in data.items():
+            columnName += "{}, ".format(key)  
+            insertData += "'{}',".format(val)  
+        insertQuery = "INSERT INTO {tab} ({cn}) SELECT {id} {cond}".format(tab=tableName, cn=columnName[:-2], id=insertData[:-1], cond=insertCondition)
+        if __debug__:
+            print(">>>> MONITORING Insert SQL: {}".format(insertQuery))
+        return self.execute(insertQuery)
 
     def select(self, query):       
         return self.execute(query)
     
-    def getId(self, table, name, colId, colName):
-        id = self.execute("SELECT {cId} FROM {tab} WHERE {cN}='{n}';".format(tab=table, n=name, cId=colId, cN=colName))
+    def getId(self, table, name, colId, colName, extension=''):
+        id = self.execute("SELECT {cId} FROM {tab} WHERE {cN}='{n}' {ex};".format(tab=table, n=name, cId=colId, cN=colName, ex=extension))
         if type(id)==bool:
             return 0
         else:
@@ -66,17 +78,15 @@ class Monitoring:
         """
         insertDatabase
         """
-        insert = [data['gdb_name'], data['gdb_description'], data['gdb_version']]
-        tableDefinition = self.gdbTab + " (gdb_name, gdb_description, gdb_version) "
-        return self.insert(tableDefinition, insert)
+        #insertOrUpdate = "gdb_name='{db}' and gdb_version='{ver}'".format(db=data['gdb_name'], ver=data['gdb_version'])
+        return self.insert(self.gdbTab, data)
     
     def insertConfiguration(self, conf_name):
         """
         insertConfiguration
         """
-        insert = [conf_name]
-        tableDefinition = self.confTab + " (conf_name) "
-        insRes = self.insert(tableDefinition, insert)  
+        insert = {'conf_name': conf_name}
+        insRes = self.insert(self.confTab, insert)  
         if insRes == True:
             seq = self.execute("SELECT last_value from configuration_conf_id_seq;")[0][0]
         else: 
@@ -89,7 +99,8 @@ class Monitoring:
         """
         if not 'gdb_id' in data:
             if 'gdb_name' in data:
-                data['gdb_id'] = self.getId(self.gdbTab, data['gdb_name'], 'gdb_id', 'gdb_name') 
+                extension = ' ORDER BY last_update desc LIMIT 1'
+                data['gdb_id'] = self.getId(self.gdbTab, data['gdb_name'], 'gdb_id', 'gdb_name', extension) 
             else:
                 print("ERR: Cannot insert data, missing parameter gdb_id")
                 sys.exit(12)
@@ -99,11 +110,8 @@ class Monitoring:
             else:
                 print("ERR: Cannot insert data, missing parameter conf_id")
                 sys.exit(12)
-        insertData = [data['run_date'], data['iteration_count'], data['gdb_id'], data['conf_id']]
-        if __debug__:
-            print("INFO: insert Experiment ({})".format(insertData))
-        tableDefinition = self.expTab + " (run_date, iteration_count, gdb_id, conf_id) "
-        insRes = self.insert(tableDefinition, insertData)
+        insertData = {'run_date': data['run_date'], 'iteration_count': data['iteration_count'], 'gdb_id': data['gdb_id'], 'conf_id': data['conf_id']}
+        insRes = self.insert(self.expTab, insertData)
         if insRes == True:
             seq = self.execute("SELECT last_value from experiment_exper_id_seq;")[0][0]
         else: 
@@ -114,11 +122,8 @@ class Monitoring:
         """
         insertRecord
         """       
-        insertData=[data['iter_timestamp'], data['iter_number'], data['status'], data['exper_id']]
-        if __debug__:
-            print("INFO: insert Iteration ({})".format(insertData))
-        tableDefinition = self.iteTab + " (iter_timestamp, iter_number, status, exper_id) "
-        insRes = self.insert(tableDefinition, insertData)
+        insertData={'iter_timestamp': data['iter_timestamp'], 'iter_number': data['iter_number'], 'status': data['status'], 'exper_id': data['exper_id']}
+        insRes = self.insert(self.iteTab, insertData)
         if insRes == True:
             seq = self.execute("SELECT last_value from iteration_iter_id_seq;")[0][0]
         else: 
@@ -132,20 +137,16 @@ class Monitoring:
         for val in data['value']:
             if 'value' in data:
                 data['meas_id'] = self.getId(self.measTab, val, 'meas_id', 'meas_name') 
-            insertData = [data['iter_id'], data['meas_id'], data['value'][val]]
-            if __debug__:
-                print("INFO: insert Value ({})".format(insertData))
-            tableDefinition = self.valTab + " (iter_id, meas_id, value) "
-            result = self.insert(tableDefinition, insertData)
+            insertData = {'iter_id': data['iter_id'], 'meas_id': data['meas_id'], 'value': data['value'][val]}
+            result = self.insert(self.valTab , insertData)
         return "ok"
     
     def insertTypes(self, type_name, conf_id, meas_id):
         """
         insertTypes
         """ 
-        insert = [type_name, conf_id, meas_id]
-        tableDefinition = self.typeTab + " (type_name, conf_id, meas_id) "
-        insRes = self.insert(tableDefinition, insert)  
+        insert = {'type_name': type_name, 'conf_id': conf_id, 'meas_id': meas_id}
+        insRes = self.insert(self.typeTab, insert)  
         if insRes == True:
             seq = self.execute("SELECT last_value from types_type_id_seq;")[0][0]
         else: 
@@ -178,18 +179,19 @@ class Monitoring:
             self.dbConnection.close()
         return True
     
-    def getReportQuery(self, command=None, database=None, experiment=None):
+    def getReportQuery(self, command=None, database=None, versionDB=None,experiment=None):
         condition = "status='OK'"
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
             condition += " AND gr.gdb_name='{}'".format(database)
+        if database:
+            condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
             condition += " AND ty.type_name='{}'".format(command)
             
         query = REPORT_ITERATION.format(cond=condition)
-        if __debug__:
-            print(">>> REPORT QUERY: '{}'".format(query))
+        print("INFO: Report query: \n\n'{}'\n".format(query))
         return query
     
     def getGraphData(self, database=None, command=None , experiment=None):
@@ -198,12 +200,14 @@ class Monitoring:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
             condition += " AND gr.gdb_name='{}'".format(database)
+        if database:
+            condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
             condition += " AND ty.type_name='{}'".format(command)
             
         query = TMP_PNG_DATA.format(cond=condition)
-        if __debug__:
-            print(">>> REPORT QUERY: '{}'".format(query))
+        print("INFO: Report query: \n\n'{}'\n".format(query))
+        print("WARN: Only prototype with static query for now!")
         return self.execute(query)
     
     def copyToCSV(self, query, csvFile):

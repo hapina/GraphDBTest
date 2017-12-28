@@ -1,9 +1,10 @@
 -- create tables
 CREATE TABLE GRAPHDB ( 
     gdb_id SERIAL PRIMARY KEY, 
-    gdb_name VARCHAR(20) UNIQUE, 
+    gdb_name VARCHAR(20), 
     gdb_description VARCHAR(100), 
-    gdb_version VARCHAR(20)
+    gdb_version VARCHAR(20),
+    last_update timestamp
 );
 SELECT SETVAL('graphdb_gdb_id_seq',1);
 

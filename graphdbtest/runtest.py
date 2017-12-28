@@ -7,7 +7,8 @@ from setupConf import Configuration
 from monitoring.monitoring import Monitoring
 
 def select(gdb, rec, mon):
-    print("----------")
+    if __debug__:
+        print("----------")
     for i in range(int(rec['iteration_count'])):
         start_time = time.time()
         if __debug__:
@@ -16,15 +17,15 @@ def select(gdb, rec, mon):
             print("WARN: Failed runCommand for " + rec['gdb_name'] )
         else:
             rec['status'] = "OK"
-            if __debug__:
-                print(">>>> OK gdb.runCommand")
         rec['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
         rec['iter_number'] = i+1
         rec['value']['run_time'] = (time.time()-start_time)
-        if __debug__:
-            print(">>>> Insert Iteration: {}".format(rec))
         rec['iter_id'] = mon.insertIteration(rec)
         mon.insertValues(rec)
+        if __debug__:
+            print(">>>> experiment: {}".format(rec))
+    if __debug__:
+        print("----------")
 
 
 def main():
@@ -80,44 +81,36 @@ def main():
         mon = Monitoring()
         record['iteration_count'] = 1
         record['exper_id'] = mon.insertExperiment(record)
-        if __debug__:
-            print(">>>> Insert Experiment: {}".format(record))
         record['iter_timestamp'] = record['run_date']
         record['iter_number'] = 1
         record['iter_id'] = mon.insertIteration(record)
         mon.insertValues(record)
+        if __debug__:
+            print(">>>> experiment: {}".format(record))
         
     elif record['type_name'] in ['insert','delete']:
         record['iteration_count'] = 1
-        record['commands'] = exper.get('commands').split("|")
+        record['commands'] = exper.get('commands').split("\n|")
         mon = Monitoring()
         record['exper_id'] = mon.insertExperiment(record)
-        if __debug__:
-            print(">>>> Insert Experiment: {}".format(record))
         record['value']['size'] = g.sizedb() 
         start_time = time.time()
-        if not g.runCommands(record['commands']):
-            print("WARN: Failed runCommand for " + record['gdb_name'] )
-        else:
+        if g.runCommands(record['commands']):
             record['status'] = "OK"
-            if __debug__:
-                print(">>>> OK g.runCommand")
             record['value']['size_after'] = g.sizedb() 
         record['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
         record['iter_number'] = 1
         record['value']['run_time'] = (time.time()-start_time)
-        if __debug__:
-            print(">>>> Insert Iteration: {}".format(record))
         record['iter_id'] = mon.insertIteration(record)
         mon.insertValues(record)
+        if __debug__:
+            print(">>>> experiment: {}".format(record))
         
     elif record['type_name'] == 'select':
         record['iteration_count'] = exper.get('iteration')
         record['commands'] = exper.get('commands').split("|")
         mon = Monitoring()
         record['exper_id'] = mon.insertExperiment(record)
-        if __debug__:
-            print(">>>> Insert Experiment: {}".format(record))
         record['value']['size'] = g.sizedb() 
         select(g, record, mon)
         
@@ -133,12 +126,12 @@ def main():
         mon = Monitoring()
         record['iteration_count'] = 1
         record['exper_id'] = mon.insertExperiment(record)
-        if __debug__:
-            print(">>>> Insert Experiment: {}".format(record))
         record['iter_timestamp'] = record['run_date']
         record['iter_number'] = 1
         record['iter_id'] = mon.insertIteration(record)
         mon.insertValues(record)
+        if __debug__:
+            print(">>>> experiment: {}".format(record))
         
     else:
         print("WARN: Not implemented yet.")  

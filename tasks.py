@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-GRAPH_DATABASES=['orientdb', 'arangodb']
+GRAPH_DATABASES=['orientdb']
 CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
 
 @task
@@ -12,11 +12,12 @@ def usage(ctx):
     
         Example: invoke usage
     """
+    print("\n\n  ***********************\n  *                     *\n  * GRAPH DATABASE TEST *\n  *                     *\n  *********************** \n\n")
     run('invoke -l')
-    print ("For information about individual task use:\n\tinvoke --help <task>\n\nExamle: invoke --help install\n")
+    print ("For information about individual task use:\n\tinvoke --help <task>\n\nExample: invoke --help install\n")
 
 @task
-def install(ctx, database=None):
+def install(ctx, database=None, version='v2.2'):
     """ Install graph database and prepare enviroment for testing
         - install graph database 
         - prepare and set database for testing
@@ -29,7 +30,7 @@ def install(ctx, database=None):
     if database == 'orientdb':    
         if __debug__:
             print(">>> Install OrientDB")
-        run('./environment/gdb/orientdb_install.sh && cd graphdbtest && python3 insertgdb.py orientdb')
+        run('./environment/gdb/orientdb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py orientdb {ver}'.format(ver=version))
     else:
         print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
 
@@ -82,20 +83,17 @@ def test(ctx):
         
         Example: invoke test
     """
+    print("INFO: Configuration checking")
     conf(ctx)
-    if __debug__:
-        print(">>> Configuration checked")
-    if __debug__:
-        print(">>> TESTING <<<")
+    print("INFO: RUN TESTING")
     configs = sorted(os.listdir(CONF_DIR))
     databases = GRAPH_DATABASES
     i=0
     for cf in configs:
         for db in databases:
             i+=1
-            if __debug__:
-                print(">>>> Test no. {i}, {db}, {cf}".format(i=i,db=db,cf=cf))
-            debug(ctx, cf, db)
+            print("INFO: Test no. {i}, {db}, {cf}".format(i=i,db=db,cf=cf))
+            start(ctx, cf, db)
             
 @task
 def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=None):

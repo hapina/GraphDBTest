@@ -14,13 +14,14 @@ def main():
         sys.exit(2)
         
     command = database = experiment = query = fileName = None
+    dbLabel = "All database"
     data = ""
     
     for o, a in opts:
         if o in ("-c", "--command"):
             command = a
         elif o in ("-d", "--database"):
-            database = a
+            database = dbLabel = a
         elif o in ("-e", "--experiment"):
             experiment = a
         elif o in ("-f", "--file"):
@@ -33,16 +34,14 @@ def main():
     #------------------------------ Generate data for plotting
     m = Monitoring()
     data = m.getGraphData(database)
-    if __debug__: 
-        print(data)
-    plt.plot(data, color='blue', label=database)
+    #print(data)
+    plt.plot(data, color='blue', label=dbLabel)
     plt.title("Experiment: run_time")
     plt.xlabel("number of iteration")
     plt.ylabel("run_time (seconds)")
     plt.legend()
     plt.savefig(fileName)
     print("INFO: PNG file was created - {}".format(fileName))
-    print("WARN: Only prototype with static query for now!")
     
 if __name__ == "__main__":
 	main()
