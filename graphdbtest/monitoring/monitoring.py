@@ -135,8 +135,8 @@ class Monitoring:
         insertValues
         """ 
         for val in data['value']:
-            if 'value' in data:
-                data['meas_id'] = self.getId(self.measTab, val, 'meas_id', 'meas_name') 
+            #if 'value' in data:
+            data['meas_id'] = self.getId(self.measTab, val, 'meas_id', 'meas_name') 
             insertData = {'iter_id': data['iter_id'], 'meas_id': data['meas_id'], 'value': data['value'][val]}
             result = self.insert(self.valTab , insertData)
         return "ok"

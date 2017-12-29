@@ -17,7 +17,7 @@ def usage(ctx):
     print ("For information about individual task use:\n\tinvoke --help <task>\n\nExample: invoke --help install\n")
 
 @task
-def install(ctx, database=None, version='v2.2'):
+def install(ctx, database=None, version=None):
     """ Install graph database and prepare enviroment for testing
         - install graph database 
         - prepare and set database for testing
@@ -28,9 +28,20 @@ def install(ctx, database=None, version='v2.2'):
     if not database:
         run('invoke --help install')
     if database == 'orientdb':    
-        if __debug__:
-            print(">>> Install OrientDB")
+        print("INFO: Install OrientDB")
+        if not version:
+            version = 'v2.2'
         run('./environment/gdb/orientdb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py orientdb {ver}'.format(ver=version))
+    elif database == 'titan':    
+        print("INFO: Install Titan with Cassandra")
+        if not version:
+            version = 'v1.0'
+        run('./environment/gdb/titan_install.sh {ver} && cd graphdbtest && python3 insertgdb.py titan {ver}'.format(ver=version))
+    elif database == 'arangodb':    
+        print("INFO: Install ArangoDB")
+        if not version:
+            version = 'v3.2'
+        run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
     else:
         print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
 

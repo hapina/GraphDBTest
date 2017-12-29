@@ -2,7 +2,9 @@ import time
 import sys
 import getopt
 
-from orientdb.orientdb_api import GraphDB
+from orientdb.orientdb_api import OrientDB
+from titan.titan_api import Titan
+from arangodb.arangodb_api import ArangoDB
 from setupConf import Configuration
 from monitoring.monitoring import Monitoring
 
@@ -12,10 +14,11 @@ def runSelect(gdb, rec, mon):
         print("WARN: Failed runCommand for " + rec['gdb_name'] )
     else:
         rec['status'] = "OK"
+        rec['value']['run_time'] = (time.time()-start_time)
     rec['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")  
-    rec['value']['run_time'] = (time.time()-start_time)
     rec['iter_id'] = mon.insertIteration(rec)
-    mon.insertValues(rec)
+    if 'run_time' in rec['value']:
+        mon.insertValues(rec)
     if __debug__:
         print(">>>> experiment: {}".format(rec))
 
@@ -53,7 +56,13 @@ def main():
     
     #------------------------------ Graph database
     if database=="orientdb":
-        g = GraphDB(record['database'])
+        g = OrientDB(record['database'])
+        g.setup()
+    elif database=="titan":
+        g = Titan(record['database'])
+        g.setup()
+    elif database=="arangodb":
+        g = ArangoDB(record['database'])
         g.setup()
     else:
         print("WARN: Not implemented yet.")
@@ -80,7 +89,8 @@ def main():
         record['iter_timestamp'] = record['run_date']
         record['iter_number'] = 1
         record['iter_id'] = mon.insertIteration(record)
-        mon.insertValues(record)
+        if 'run_time' in record['value']:
+            mon.insertValues(record)
         if __debug__:
             print(">>>> experiment: {}".format(record))
         
@@ -94,11 +104,12 @@ def main():
         if g.runCommands(record['commands']):
             record['status'] = "OK"
             record['value']['size_after'] = g.sizedb() 
+            record['value']['run_time'] = (time.time()-start_time)  
         record['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
         record['iter_number'] = 1
-        record['value']['run_time'] = (time.time()-start_time)
         record['iter_id'] = mon.insertIteration(record)
-        mon.insertValues(record)
+        if 'run_time' in record['value']:
+            mon.insertValues(record)
         if __debug__:
             print(">>>> experiment: {}".format(record))
         

@@ -12,6 +12,10 @@ if not db:
     
 if db == 'orientdb':
     database = {'gdb_name': 'orientdb', 'gdb_description': 'OrientDB, document-graph database', 'gdb_version': ver , 'last_update': timestamp}
+elif db == 'titan':
+    database = {'gdb_name': 'titan', 'gdb_description': 'Titan & Cassandra, distributed graph database', 'gdb_version': ver , 'last_update': timestamp}   
+elif db == 'arangodb':
+    database = {'gdb_name': 'arangodb', 'gdb_description': 'Arango DB, native multi-model database', 'gdb_version': ver , 'last_update': timestamp}    
 #"titanC","Titan & Cassandra, distributed graph database ","v1.0"
 #"titanH","Titan & HBase, distributed graph database","v1.0"
 #"titanB","Titan & BerkeleyDB, distributed graph database","v1.0"

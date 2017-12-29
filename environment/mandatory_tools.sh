@@ -5,6 +5,7 @@ apt-get -y update
 apt-get -y upgrade
 
 apt-get -y install sudo
+apt-get -y install curl
 
 #install python and its dependencies
 apt-get -y install python3

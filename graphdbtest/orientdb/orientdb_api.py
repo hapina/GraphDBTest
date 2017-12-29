@@ -1,10 +1,9 @@
 import requests
 import json
-import gzip
 
 from .orientdb_conf_api import *
 
-class GraphDB:
+class OrientDB:
     def __init__(self, dbName):
         # credentials
         self.url = GRAPHDB_API_URL 
