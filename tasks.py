@@ -40,7 +40,7 @@ def install(ctx, database=None, version=None):
     elif database == 'arangodb':    
         print("INFO: Install ArangoDB")
         if not version:
-            version = 'v3.2'
+            version = 'v3.3'
         run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
     else:
         print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))

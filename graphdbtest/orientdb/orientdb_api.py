@@ -1,5 +1,6 @@
 import requests
 import json
+from subprocess import Popen, PIPE
 
 from .orientdb_conf_api import *
 
@@ -56,7 +57,7 @@ class OrientDB:
         
     def runBatch(self, batch):
         """
-        run batch - POST
+        run batch
         """
         return requests.get(self.url + self.batch + self.dbName, data=batch, auth=(self.user , self.password))          
 
@@ -121,9 +122,11 @@ class OrientDB:
             Cannot get allocation information for database 'GratefulDeadConcerts' 
             because it is not implemented yet."
         """
-        requests.get(self.url + self.size + self.dbName, auth=(self.user , self.password)) 
-        return 1452
-
+        dbPath = '/opt/orientdb/databases/{}'.format(self.dbName)
+        output = Popen(['du', '-s', dbPath ], stdout=PIPE).communicate()[0]
+        s = output.decode("utf-8").split('\t')
+        return s[0]
+        
 def main():
     test = False
     my_path = "/home/hapina/Downloads/"

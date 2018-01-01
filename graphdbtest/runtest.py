@@ -73,16 +73,20 @@ def main():
         start_time = time.time()
         if record['type_name'] == 'create':
             res = g.createDB()
+            size = g.sizedb()
         if record['type_name'] == 'drop':
+            size = g.sizedb()
             res = g.dropDB()
         if record['type_name'] == 'import':
             res = g.importJSON(exper.get('import_file'))
+            size = g.sizedb()
         if record['type_name'] == 'export':
+            size = g.sizedb()
             res = g.exportJSON(exper.get('export_path'))
         if res:
             record['status'] = "OK"
             record['value']['run_time'] = (time.time()-start_time)
-            record['value']['size'] = g.sizedb() 
+            record['value']['size'] = size 
         mon = Monitoring()
         record['iteration_count'] = 1
         record['exper_id'] = mon.insertExperiment(record)
@@ -103,12 +107,12 @@ def main():
         start_time = time.time()
         if g.runCommands(record['commands']):
             record['status'] = "OK"
-            record['value']['size_after'] = g.sizedb() 
             record['value']['run_time'] = (time.time()-start_time)  
         record['iter_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
         record['iter_number'] = 1
         record['iter_id'] = mon.insertIteration(record)
         if 'run_time' in record['value']:
+            record['value']['size_after'] = g.sizedb() 
             mon.insertValues(record)
         if __debug__:
             print(">>>> experiment: {}".format(record))

@@ -135,7 +135,6 @@ class Monitoring:
         insertValues
         """ 
         for val in data['value']:
-            #if 'value' in data:
             data['meas_id'] = self.getId(self.measTab, val, 'meas_id', 'meas_name') 
             insertData = {'iter_id': data['iter_id'], 'meas_id': data['meas_id'], 'value': data['value'][val]}
             result = self.insert(self.valTab , insertData)
@@ -179,13 +178,13 @@ class Monitoring:
             self.dbConnection.close()
         return True
     
-    def getReportQuery(self, command=None, database=None, versionDB=None,experiment=None):
+    def getReportQuery(self, command=None, database=None, experiment=None, versionDB=None):
         condition = "status='OK'"
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
             condition += " AND gr.gdb_name='{}'".format(database)
-        if database:
+        if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
             condition += " AND ty.type_name='{}'".format(command)
@@ -194,13 +193,13 @@ class Monitoring:
         print("INFO: Report query: \n\n'{}'\n".format(query))
         return query
     
-    def getGraphData(self, database=None, command=None , experiment=None):
+    def getGraphData(self, database=None, command=None, experiment=None):
         condition = "status='OK'"
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
             condition += " AND gr.gdb_name='{}'".format(database)
-        if database:
+        if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
             condition += " AND ty.type_name='{}'".format(command)
