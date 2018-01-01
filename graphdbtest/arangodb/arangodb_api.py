@@ -1,3 +1,6 @@
+import requests
+import json
+
 from .arangodb_conf_api import *
 
 class ArangoDB:
@@ -21,27 +24,60 @@ class ArangoDB:
  
     def setup(self):
         """
-        setup 
+        setup
         """
-        print("WARN: ArangoDB: Not implemented yet.")
+        self.dbExists = self.isDatabaseExist(self.dbName)
         
     def sizedb(self):
         """
         sizedb
         """  
-        print("WARN: ArangoDB: Not implemented yet.")
+        res = requests.get(self.url + self.size, auth=(self.user , self.password)) 
+        systemInfo = json.loads(res.text)['server']
+        size = json.loads(res.text)['server']['physicalMemory']
+        print(systemInfo)
+        print(size)
+        return size
+
+    def isDatabaseExist(self, name = None):
+        """
+        isDatabaseExist
+        """
+        if not name:
+            name = self.dbName
+        res = requests.get(self.url + self.listdb, auth=(self.user , self.password)) 
+        listOfDB = json.loads(res.text)['result']
+        return (True if listOfDB and (self.dbName in listOfDB) else False)
     
     def createDB(self):
         """
         createDB 
         """  
-        print("WARN: ArangoDB: Not implemented yet.")
+        data = '{{ "name": "{}" }}'.format(self.dbName)
+        res = requests.post(self.url + self.create, data=data, auth=(self.user , self.password)) 
+        status = (True if (res.status_code==201) else False)
+        self.setup()
+        if __debug__:
+            if status:
+                print(">>> ArangoDB create database: OK")
+            else:
+                print(">>> ArangoDB create database: {}".format(res.text))
+        return status
         
     def dropDB(self):
         """
         dropDB 
         """  
-        print("WARN: ArangoDB: Not implemented yet.")
+        res = requests.delete(self.url + self.drop + self.dbName, auth=(self.user , self.password)) 
+        status = (True if (res.status_code==200) else False)
+        self.setup()
+        if __debug__:
+            if status:
+                print(">>> ArangoDB create database: OK")
+            else:
+                print(">>> ArangoDB create database: {}".format(res.text))
+        return status
+            
 
     def importJSON(self, importFile):
         """

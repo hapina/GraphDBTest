@@ -2,7 +2,7 @@
 """
 
 # access from HTTP API
-GRAPHDB_API_URL = "http://localhost:2480"
+GRAPHDB_API_URL = "http://localhost:8182/"
 GRAPHDB_API_USER = ""
 GRAPHDB_API_PASS = ""
 GRAPHDB_API_DBNAME = ""
