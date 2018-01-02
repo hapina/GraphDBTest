@@ -18,6 +18,9 @@ sudo rm -f orientdb
 
 sudo sed -i "s/<storages>/<storages><storage path='memory:temp' name='temp' userName='admin' userPassword='admin' loaded-at-startup='true' \/>/" /opt/orientdb/config/orientdb-server-config.xml
 sudo sed -i "s/<users>/<users><user name='orientuser' password='password' resources='*' \/>/" /opt/orientdb/config/orientdb-server-config.xml
+sudo sed -i "s/ORIENTDB_OPTS_MEMORY=\"-Xms2G -Xmx2G/ORIENTDB_OPTS_MEMORY=\"-Xms128m -Xmx256m/" /opt/orientdb/bin/server.sh
+
+
 #--------
 # error "Cannot allocate memory"
 # in /opt/orientdb/bin/server.sh to change ORIENTDB_OPTS_MEMORY="-Xms128m -Xmx256m"
@@ -31,5 +34,7 @@ sudo usermod -a -G orientuser orientuser
 
 sudo cp orientdb/bin/orientdb.sh /etc/init.d/
 sudo sed -i "s|YOUR_ORIENTDB_INSTALLATION_PATH|/opt/orientdb|;s|USER_YOU_WANT_ORIENTDB_RUN_WITH|orientuser|" /etc/init.d/orientdb.sh
+
+sudo $GraphDBTest_home/orientdb_server.sh
 
 echo "DONE"

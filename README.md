@@ -1,22 +1,25 @@
 # Graph Database Test 
 
-## Usage: 
-`inv[oke] [--core-opts] task1 [--task1-opts] ... taskN [--taskN-opts]`
+## Prepare environment: 
+`$ cd GraphDBTest`
+`$ ./install.sh`
 
+## Install and run graph database: 
+`$ invoke --help install` - more info
+`$ invoke install --database orientdb --version v2.2`
 
-## Available tasks (`invoke -l`):
+## Run all experiments:
+Run all of experiments from second terminal:
+`$ invoke --help test` - more info
+`$ invoke test`
 
-- clean: 
-Clean enviroment
-- debug: 
-Run experiment in debug mode
-- install:
-Prepare enviroment for run experiments
-- start:
-Run graph database experiment
-- usage:
-Basic task information
+## Generate CSV file:
+`$ invoke --help csv` - more info
+`$ invoke csv`
 
-For information about infividual task use:
- - `invoke --help task`
- - `invoke -h task`
+## Generate PNG file with graph:
+`$ invoke --help png` - more info
+`$ invoke png`
+
+## All available tasks:
+`$ invoke usage`

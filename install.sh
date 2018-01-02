@@ -2,6 +2,7 @@
 
 GraphDBTest_home=$(dirname $(readlink -f $0))
 
+cd $GraphDBTest_home
 cd environment && ./mandatory_tools.sh && cd monitoring && ./prepare_database.sh && ./insert_table.sh
 
 cd $GraphDBTest_home
