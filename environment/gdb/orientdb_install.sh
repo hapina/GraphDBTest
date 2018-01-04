@@ -20,11 +20,6 @@ sudo sed -i "s/<storages>/<storages><storage path='memory:temp' name='temp' user
 sudo sed -i "s/<users>/<users><user name='orientuser' password='password' resources='*' \/>/" /opt/orientdb/config/orientdb-server-config.xml
 sudo sed -i "s/ORIENTDB_OPTS_MEMORY=\"-Xms2G -Xmx2G/ORIENTDB_OPTS_MEMORY=\"-Xms128m -Xmx256m/" /opt/orientdb/bin/server.sh
 
-
-#--------
-# error "Cannot allocate memory"
-# in /opt/orientdb/bin/server.sh to change ORIENTDB_OPTS_MEMORY="-Xms128m -Xmx256m"
-#--------
 sudo chmod 640 /opt/orientdb/config/orientdb-server-config.xml
 sudo useradd -d /opt/orientdb -M -r -s /bin/false -U orientuser
 sudo chown -R orientuser.orientuser /opt/orientdb*

@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-GRAPH_DATABASES=['orientdb']
+GRAPH_DATABASES=['orientdb','janusgraph']
 CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
 
 @task
@@ -32,11 +32,11 @@ def install(ctx, database=None, version=None):
         if not version:
             version = 'v2.2'
         run('./environment/gdb/orientdb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py orientdb {ver}'.format(ver=version))
-    elif database == 'titan':    
-        print("INFO: Install Titan with Cassandra")
+    elif database == 'janusgraph':    
+        print("INFO: Install JanusGraph with Cassandra")
         if not version:
             version = 'v1.0'
-        run('./environment/gdb/titan_install.sh {ver} && cd graphdbtest && python3 insertgdb.py titan {ver}'.format(ver=version))
+        run('./environment/gdb/janusgraph_install.sh {ver} && cd graphdbtest && python3 insertgdb.py janusgraph {ver}'.format(ver=version))
     elif database == 'arangodb':    
         print("INFO: Install ArangoDB")
         if not version:

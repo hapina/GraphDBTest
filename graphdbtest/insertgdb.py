@@ -12,15 +12,14 @@ if not db:
     
 if db == 'orientdb':
     database = {'gdb_name': 'orientdb', 'gdb_description': 'OrientDB, document-graph database', 'gdb_version': ver , 'last_update': timestamp}
-elif db == 'titan':
-    database = {'gdb_name': 'titan', 'gdb_description': 'Titan & Cassandra, distributed graph database', 'gdb_version': ver , 'last_update': timestamp}   
+elif db == 'janusgraph':
+    database = {'gdb_name': 'janusgraph', 'gdb_description': 'JanusGraph & Cassandra, distributed graph database', 'gdb_version': ver , 'last_update': timestamp}   
 elif db == 'arangodb':
     database = {'gdb_name': 'arangodb', 'gdb_description': 'Arango DB, native multi-model database', 'gdb_version': ver , 'last_update': timestamp}    
 #"titanC","Titan & Cassandra, distributed graph database ","v1.0"
 #"titanH","Titan & HBase, distributed graph database","v1.0"
 #"titanB","Titan & BerkeleyDB, distributed graph database","v1.0"
 #"titanM","Titan & InMemory, distributed graph database","v1.0"
-#"arangodb","Arango DB, native multi-model database","v3.2"    
 else:
     print("WARN: Not implemented yet for database - {}".format(db))
     sys.exit(12)
