@@ -1,16 +1,16 @@
 #!/bin/bash
 #
-#   neo4j_install.sh
+#   sparksee_install.sh
 ####
 
-# Settings for Neo4j
-graphName=neo4j
-groupId=org.apache.tinkerpop
-artifactId=neo4j-gremlin
+# Settings for Sparksee
+graphName=sparksee
+groupId=com.tinkerpop.blueprints
+artifactId=blueprints-sparksee-graph
 version=$1
 tmpConfig=conf/${graphName}_x.properties 
-graphPath=org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph
-location=/temp/gremlin_databases/neo4j
+graphPath=com.tinkerpop.blueprints.impls.sparksee.SparkseeGraph
+location=/temp/gremlin_databases/sparksee
 
 cat <<< "[INFO] Install ${artifactId^}"
 cd /opt/gremlin/
@@ -46,6 +46,6 @@ conf=`cat > $tmpConfig <<EOF
 # gremlin-server.sh -i $groupId $artifactId $version
 #
 gremlin.graph=$graphPath
-gremlin.neo4j.directory=$location
+gremlin.sparksee.directory=$location
 EOF`
 [[ -z $conf ]] && cat <<< "[INFO] Installed succeed"

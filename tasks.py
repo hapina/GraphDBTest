@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-GRAPH_DATABASES=['orientdb','tinkergraph', 'bitsy', 'neo4j', 'arangodb'] 
+GRAPH_DATABASES=['orientdb','sparksee', 'bitsy', 'neo4j', 'arangodb'] 
 CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
 
 @task
@@ -17,6 +17,17 @@ def usage(ctx):
     print ("For information about individual task use:\n\tinvoke --help <task>\n\nExample: invoke --help install\n")
 
 @task
+def clean(ctx):
+    """ Clean environment
+        - drop data from graph databases
+        - delete data from monitoring database
+        
+        Example: invoke clean
+    """
+    run('rm -r /temp/gremlin_databases/')
+    run('cd graphdbtest && python3 cleanMonitoringDB.py')
+
+@task
 def install(ctx, database=None, version=None):
     """ Install graph database and prepare enviroment for testing
         - install graph database 
@@ -28,32 +39,30 @@ def install(ctx, database=None, version=None):
     if not database:
         run('invoke --help install')
     if database == 'orientdb':    
-        print("INFO: Install OrientDB")
+        description = 'OrientDB, document-graph database'
+        version = 'v2.2'
+    elif database == 'sparksee':    
+        description = 'Sparksee, high-performance graph database'
         if not version:
-            version = 'v2.2'
-        run('./environment/gdb/orientdb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py orientdb {ver}'.format(ver=version))
-    elif database == 'tinkergraph':    
-        print("INFO: Install TinkerGraph")
-        if not version:
-            version = 'v3.2'
-        #run('./environment/gdb/gremlin_install.sh {ver} && cd graphdbtest && python3 insertgdb.py tinkergraph {ver}'.format(ver=version))
+            version = '2.6.0'
     elif database == 'bitsy':    
-        print("INFO: Install Bitsy")
+        description = 'Bitsy, small and fast in-memory graph database'
         if not version:
-            version = 'v??'
-        #run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
+            version = '1.5.2'
     elif database == 'neo4j':    
-        print("INFO: Install Neo4j")
+        description = 'Neo4j, The internet-scale graph platform'
         if not version:
-            version = 'v??'
-        #run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
+            version = '3.3.1'
     elif database == 'arangodb':    
-        print("INFO: Install ArangoDB")
+        description = 'Arango DB, native multi-model database'
         if not version:
             version = 'v3.3'
-        #run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
     else:
-        print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
+        print("WARN: Unsupported database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
+        error()
+        
+    run('./environment/gdb/{db}_install.sh {ver}'.format(ver=version, db=database))
+    run('cd graphdbtest && python3 insertgdb.py {db} {ver} "{des}"'.format(ver=version, db=database, des=description))
 
 @task
 def conf(ctx):
@@ -109,7 +118,11 @@ def test(ctx, database=None):
     print("INFO: RUN TESTING")
     configs = sorted(os.listdir(CONF_DIR))
     if database:
-        databases = [database]
+        if database in GRAPH_DATABASES:
+            databases = [database]
+        else:
+            print("WARN: Unsupported database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
+            error()
     else:
         databases = GRAPH_DATABASES
     i=0

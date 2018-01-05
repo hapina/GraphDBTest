@@ -11,7 +11,7 @@ from monitoring.monitoring import Monitoring
 def runSelect(gdb, rec, mon):
     start_time = time.time()
     if not gdb.runCommands(rec['commands']):
-        print("WARN: Failed runCommand for " + rec['gdb_name'] )
+        print("WARN: Failed runCommand for " + rec['gdb_server'] )
     else:
         rec['status'] = "OK"
         rec['value']['run_time'] = (time.time()-start_time)
@@ -48,25 +48,21 @@ def main():
     record = dict()
     record['run_date'] = time.strftime("%Y-%m-%d %H:%M:%S")
     record['conf_name'] = experiment[(experiment.rfind('/') + 1):]
-    record['database'] = exper.get('db_name')
-    record['gdb_name'] = database
+    record['gdb_name'] = exper.get('db_name')
+    record['gdb_server'] = database
     record['type_name'] = exper.get('experiment_type')
     record['status'] = 'ERR'
     record['value'] = dict()
     
     #------------------------------ Graph database
     if database=="orientdb":
-        g = OrientDB(record['database'])
-        g.setup()
-    elif database=="tinkergraph":
-        g = MyGremlin(record['database'])
+        g = OrientDB(record['gdb_name'])
         g.setup()
     elif database=="arangodb":
-        g = ArangoDB(record['database'])
+        g = ArangoDB(record['gdb_name'])
         g.setup()
     else:
-        print("WARN: Not implemented yet.")
-        return 3
+        g = MyGremlin(record['gdb_name'],record['gdb_server'])
     
     #------------------------------ Run Experiment
     if record['type_name'] in ['create','drop', 'import', 'export']:

@@ -4,18 +4,19 @@
 ####
 
 # Settings for Bitsy
+graphName=bitsy
 groupId=com.lambdazen.bitsy
 artifactId=bitsy
-version=1.5.2
-tmpConfig=conf/${artifactId}_x.properties 
-graphPath=org.apache.tinkerpop.gremlin.bitsy.structure.Bitsy
-location=/tmp/bitsy
+version=$1
+tmpConfig=conf/${graphName}_x.properties 
+graphPath=com.lambdazen.bitsy.BitsyGraph
+location=/temp/gremlin_databases/bitsy
 
 cat <<< "[INFO] Install ${artifactId^}"
 cd /opt/gremlin/
 ins=`bin/gremlin-server.sh install $groupId $artifactId $version`
 
-[[ -z $ins ]] || echo "[ERR] Install ${artifactId^}:  $ins" && exit
+[[ -z $ins ]] || echo "[ERR] Install ${artifactId^}:  $ins"
 
 cat <<< "[INFO] Create config: $tmpConfig "
 conf=`cat > $tmpConfig <<EOF
@@ -45,8 +46,6 @@ conf=`cat > $tmpConfig <<EOF
 # gremlin-server.sh -i $groupId $artifactId $version
 #
 gremlin.graph=$graphPath
-gremlin.neo4j.directory=$location
-
-
+gremlin.bitsy.directory=$location
 EOF`
 [[ -z $conf ]] && cat <<< "[INFO] Installed succeed"

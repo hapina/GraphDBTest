@@ -78,7 +78,7 @@ class Monitoring:
         """
         insertDatabase
         """
-        #insertOrUpdate = "gdb_name='{db}' and gdb_version='{ver}'".format(db=data['gdb_name'], ver=data['gdb_version'])
+        #insertOrUpdate = "gdb_server='{db}' and gdb_version='{ver}'".format(db=data['gdb_server'], ver=data['gdb_version'])
         return self.insert(self.gdbTab, data)
     
     def insertConfiguration(self, conf_name):
@@ -98,18 +98,29 @@ class Monitoring:
         insertExperiment    
         """
         if not 'gdb_id' in data:
-            if 'gdb_name' in data:
+            if 'gdb_server' in data:
                 extension = ' ORDER BY last_update desc LIMIT 1'
-                data['gdb_id'] = self.getId(self.gdbTab, data['gdb_name'], 'gdb_id', 'gdb_name', extension) 
+                gdbId=self.getId(self.gdbTab, data['gdb_server'], 'gdb_id', 'gdb_name', extension)
+                if gdbId:
+                    data['gdb_id'] = gdbId
+                else:
+                    print("ERR: Cannot find {d} in table {t}".format(d=data['gdb_server'], t=self.gdbTab))
+                    sys.exit(12)                
             else:
                 print("ERR: Cannot insert data, missing parameter gdb_id")
                 sys.exit(12)
         if not 'conf_id' in data:
             if 'conf_name' in data:
-                data['conf_id'] = self.getId(self.confTab, data['conf_name'], 'conf_id', 'conf_name') 
+                confId = self.getId(self.confTab, data['conf_name'], 'conf_id', 'conf_name') 
+                if confId:
+                    data['conf_id'] = confId
+                else:
+                    print("ERR: Cannot find {d} in table {t}".format(d=data['conf_name'], t=self.confTab))
+                    sys.exit(12)
             else:
                 print("ERR: Cannot insert data, missing parameter conf_id")
                 sys.exit(12)
+
         insertData = {'run_date': data['run_date'], 'iteration_count': data['iteration_count'], 'gdb_id': data['gdb_id'], 'conf_id': data['conf_id']}
         insRes = self.insert(self.expTab, insertData)
         if insRes == True:
@@ -183,7 +194,7 @@ class Monitoring:
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
-            condition += " AND gr.gdb_name='{}'".format(database)
+            condition += " AND gr.gdb_server='{}'".format(database)
         if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
@@ -198,7 +209,7 @@ class Monitoring:
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
-            condition += " AND gr.gdb_name='{}'".format(database)
+            condition += " AND gr.gdb_server='{}'".format(database)
         if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
@@ -218,6 +229,12 @@ class Monitoring:
                 print("INFO: CSV file was created - {}".format(csvFile))
         finally:
             self.dbConnection.close()
+    
+    def cleanDB(self):
+        databases = [self.gdbTab, self.confTab, self.expTab, self.iteTab, self.valTab]
+        for db in databases:
+            self.execute('DROP TABLE {}'.format(db))
+        
 
 def main():
     print ("---")
