@@ -10,4 +10,4 @@ pandas==0.19.2
 patsy==0.4.1+dev
 scipy==0.18.1
 seaborn==0.7.1
-
+gremlinpy==3.7.0
