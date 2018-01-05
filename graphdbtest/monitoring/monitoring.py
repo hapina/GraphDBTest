@@ -193,7 +193,7 @@ class Monitoring:
         print("INFO: Report query: \n\n'{}'\n".format(query))
         return query
     
-    def getGraphData(self, database=None, command=None, experiment=None):
+    def getGraphData(self, command=None, database=None, experiment=None, versionDB=None):
         condition = "status='OK'"
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)

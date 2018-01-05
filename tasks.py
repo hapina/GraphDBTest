@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-GRAPH_DATABASES=['orientdb','janusgraph']
+GRAPH_DATABASES=['orientdb','tinkergraph', 'bitsy', 'neo4j', 'arangodb'] 
 CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
 
 @task
@@ -32,16 +32,26 @@ def install(ctx, database=None, version=None):
         if not version:
             version = 'v2.2'
         run('./environment/gdb/orientdb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py orientdb {ver}'.format(ver=version))
-    elif database == 'janusgraph':    
-        print("INFO: Install JanusGraph with Cassandra")
+    elif database == 'tinkergraph':    
+        print("INFO: Install TinkerGraph")
         if not version:
-            version = 'v1.0'
-        run('./environment/gdb/janusgraph_install.sh {ver} && cd graphdbtest && python3 insertgdb.py janusgraph {ver}'.format(ver=version))
+            version = 'v3.2'
+        #run('./environment/gdb/gremlin_install.sh {ver} && cd graphdbtest && python3 insertgdb.py tinkergraph {ver}'.format(ver=version))
+    elif database == 'bitsy':    
+        print("INFO: Install Bitsy")
+        if not version:
+            version = 'v??'
+        #run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
+    elif database == 'neo4j':    
+        print("INFO: Install Neo4j")
+        if not version:
+            version = 'v??'
+        #run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
     elif database == 'arangodb':    
         print("INFO: Install ArangoDB")
         if not version:
             version = 'v3.3'
-        run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
+        #run('./environment/gdb/arangodb_install.sh {ver} && cd graphdbtest && python3 insertgdb.py arangodb {ver}'.format(ver=version))
     else:
         print("WARN: Bad parameter database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
 
@@ -88,7 +98,7 @@ def start(ctx, experimentConfig=None, graphDatabaseName=None):
     runExperiment(ctx, graphDatabaseName, experimentConfig, False)
     
 @task
-def test(ctx):
+def test(ctx, database=None):
     """ Caution: Run sequence of all test
         Run each defined experiment in /config directory in sequence mode for each installed database
         
@@ -98,7 +108,10 @@ def test(ctx):
     conf(ctx)
     print("INFO: RUN TESTING")
     configs = sorted(os.listdir(CONF_DIR))
-    databases = GRAPH_DATABASES
+    if database:
+        databases = [database]
+    else:
+        databases = GRAPH_DATABASES
     i=0
     for cf in configs:
         for db in databases:

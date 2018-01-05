@@ -3,7 +3,7 @@ import sys
 import getopt
 
 from orientdb.orientdb_api import OrientDB
-from janusgraph.janusgraph_api import JanusGraph
+from myGremlin.myGremlin import MyGremlin
 from arangodb.arangodb_api import ArangoDB
 from setupConf import Configuration
 from monitoring.monitoring import Monitoring
@@ -58,8 +58,8 @@ def main():
     if database=="orientdb":
         g = OrientDB(record['database'])
         g.setup()
-    elif database=="janusgraph":
-        g = JanusGraph(record['database'])
+    elif database=="tinkergraph":
+        g = MyGremlin(record['database'])
         g.setup()
     elif database=="arangodb":
         g = ArangoDB(record['database'])

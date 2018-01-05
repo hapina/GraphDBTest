@@ -117,10 +117,6 @@ class OrientDB:
     def sizedb(self):
         """
         size of database - GET   
-        ORIENTDB ERROR:       
-        "content": "java.lang.IllegalArgumentException: 
-            Cannot get allocation information for database 'GratefulDeadConcerts' 
-            because it is not implemented yet."
         """
         dbPath = '/opt/orientdb/databases/{}'.format(self.dbName)
         output = Popen(['du', '-s', dbPath ], stdout=PIPE).communicate()[0]
