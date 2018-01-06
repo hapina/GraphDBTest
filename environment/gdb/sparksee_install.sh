@@ -10,7 +10,7 @@ artifactId=blueprints-sparksee-graph
 version=$1
 tmpConfig=conf/${graphName}_x.properties 
 graphPath=com.tinkerpop.blueprints.impls.sparksee.SparkseeGraph
-location=/temp/gremlin_databases/sparksee
+location=/temp/gremlin_databases/${graphName}
 
 cat <<< "[INFO] Install ${artifactId^}"
 cd /opt/gremlin/

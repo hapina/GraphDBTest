@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-#   bitsy_install.sh
+#   orientdb_install.sh
 ####
 
-# Settings for Bitsy
-graphName=bitsy
-groupId=com.lambdazen.bitsy
-artifactId=bitsy
-version=$1
+# Settings for OrientDB
+graphName=orientdb
+groupId=com.tinkerpop.blueprints
+artifactId=blueprints-orient-graph
+version=2.4.0   #$1
 tmpConfig=conf/${graphName}_x.properties 
-graphPath=com.lambdazen.bitsy.BitsyGraph
+graphPath=com.tinkerpop.blueprints.impls.orient.OrientGraph
 location=/temp/gremlin_databases/${graphName}
 
 cat <<< "[INFO] Install ${artifactId^}"
@@ -46,7 +46,7 @@ conf=`cat > $tmpConfig <<EOF
 # gremlin-server.sh -i $groupId $artifactId $version
 #
 gremlin.graph=$graphPath
-gremlin.bitsy.directory=$location
+gremlin.orient.directory=$location
 EOF`
 [[ -z $conf ]] && cat <<< "[INFO] Installed succeed"
 status=`/opt/gremlin/bin/gremlin-server.sh start`

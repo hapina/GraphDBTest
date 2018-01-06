@@ -10,7 +10,7 @@ artifactId=neo4j-gremlin
 version=$1
 tmpConfig=conf/${graphName}_x.properties 
 graphPath=org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph
-location=/temp/gremlin_databases/neo4j
+location=/temp/gremlin_databases/${graphName}
 
 cat <<< "[INFO] Install ${artifactId^}"
 cd /opt/gremlin/

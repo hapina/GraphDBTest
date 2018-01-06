@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-#   bitsy_install.sh
+#   tinkergraph_install.sh
 ####
 
-# Settings for Bitsy
-graphName=bitsy
-groupId=com.lambdazen.bitsy
-artifactId=bitsy
+# Settings for TinkerGraph
+graphName=tinkergraph
+groupId=com.tinkerpop.blueprints
+artifactId=blueprints-core
 version=$1
 tmpConfig=conf/${graphName}_x.properties 
-graphPath=com.lambdazen.bitsy.BitsyGraph
+graphPath=com.tinkerpop.blueprints.impls.tg.TinkerGraph
 location=/temp/gremlin_databases/${graphName}
 
 cat <<< "[INFO] Install ${artifactId^}"
@@ -46,7 +46,7 @@ conf=`cat > $tmpConfig <<EOF
 # gremlin-server.sh -i $groupId $artifactId $version
 #
 gremlin.graph=$graphPath
-gremlin.bitsy.directory=$location
+gremlin.tinkergraph.directory=$location
 EOF`
 [[ -z $conf ]] && cat <<< "[INFO] Installed succeed"
 status=`/opt/gremlin/bin/gremlin-server.sh start`
