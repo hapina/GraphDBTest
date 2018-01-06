@@ -6,7 +6,6 @@ import re
 import os
 
 from subprocess import Popen, PIPE
-
     
 def stopGremlinServer():
     gremlinServer="/opt/gremlin/bin/gremlin-server.sh"
@@ -19,7 +18,6 @@ def startGremlinServer():
     output = Popen([gremlinServer, 'start'], stdout=PIPE).communicate()[0]
     s = output.decode("utf-8").split('\t')
     return s[0]
-
 
 class MyGremlin:
     def __init__(self, dbName, serverName):
@@ -59,7 +57,6 @@ class MyGremlin:
         
         # edit /opt/gremlin/conf/gremlin-server.yaml
         yamlf= self.path + self.confYaml
-            
         textToSearch="  graph: conf/tinkergraph-empty.properties}"
         textToReplace="  {graph}: {confP},\n{orig}".format(graph=self.graphName, confP=self.confProperties, orig=textToSearch)
         with fileinput.FileInput(files=(yamlf), inplace=True, backup='.bak') as f:
@@ -106,7 +103,7 @@ class MyGremlin:
                 
         # edit /opt/gremlin/scripts/empty-sample.groovy
         groovyf= self.path + self.confGroovy
-        textToSearch="globals << [{g}: {graph}.traversal()]\n".format(g=self.gName,graph=self.graphName)
+        textToSearch="globals << [{g}: {graph}.traversal()]".format(g=self.gName,graph=self.graphName)
         textToReplace=""
         with fileinput.FileInput(files=(groovyf), inplace=True, backup='.bak') as f:
             for line in f:
@@ -167,10 +164,10 @@ def main():
     print(graph.sizedb())
     commands = [ "g.addV().property('name','first')", "graph.features()", "g.V().count()", "g.V().drop()", "g.V().count()"]
     print(graph.runCommands(commands))
-    #graph.exportJSON()
-    #graph.importJSON("/opt/gremlin/data/tinkerpop-modern.json")
-    #print(graph.runCommands(["g.V().outE()"]))
-    #print(graph.sizedb())
+    graph.exportJSON()
+    graph.importJSON("/opt/gremlin/data/tinkerpop-modern.json")
+    print(graph.runCommands(["g.V().outE()"]))
+    print(graph.sizedb())
     graph.dropDB()
     
 if __name__ == "__main__":

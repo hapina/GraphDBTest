@@ -8,6 +8,9 @@ from arangodb.arangodb_api import ArangoDB
 from setupConf import Configuration
 from monitoring.monitoring import Monitoring
 
+def executeGraphCommand():
+    pass
+
 def runSelect(gdb, rec, mon):
     start_time = time.time()
     if not gdb.runCommands(rec['commands']):
@@ -66,22 +69,31 @@ def main():
     
     #------------------------------ Run Experiment
     if record['type_name'] in ['create','drop', 'import', 'export']:
-        start_time = time.time()
         if record['type_name'] == 'create':
+            start_time = time.time()
             res = g.createDB()
+            end_time = (time.time()-start_time)
+            time.sleep(10)
             size = g.sizedb()
         if record['type_name'] == 'drop':
             size = g.sizedb()
+            start_time = time.time()
+            time.sleep(6)
             res = g.dropDB()
+            end_time = (time.time()-start_time)
         if record['type_name'] == 'import':
+            start_time = time.time()
             res = g.importJSON(exper.get('import_file'))
+            end_time = (time.time()-start_time)
             size = g.sizedb()
         if record['type_name'] == 'export':
             size = g.sizedb()
+            start_time = time.time()
             res = g.exportJSON(exper.get('export_path'))
+            end_time = (time.time()-start_time)
         if res:
             record['status'] = "OK"
-            record['value']['run_time'] = (time.time()-start_time)
+            record['value']['run_time'] = end_time
             record['value']['size'] = size 
         mon = Monitoring()
         record['iteration_count'] = 1

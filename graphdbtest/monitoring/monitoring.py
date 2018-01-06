@@ -194,7 +194,7 @@ class Monitoring:
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
-            condition += " AND gr.gdb_server='{}'".format(database)
+            condition += " AND gr.gdb_name='{}'".format(database)
         if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
@@ -209,7 +209,7 @@ class Monitoring:
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
         if database:
-            condition += " AND gr.gdb_server='{}'".format(database)
+            condition += " AND gr.gdb_name='{}'".format(database)
         if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
         if command:
