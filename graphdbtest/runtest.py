@@ -73,7 +73,7 @@ def main():
             start_time = time.time()
             res = g.createDB()
             end_time = (time.time()-start_time)
-            time.sleep(10)
+            time.sleep(15)
             size = g.sizedb()
         if record['type_name'] == 'drop':
             size = g.sizedb()
