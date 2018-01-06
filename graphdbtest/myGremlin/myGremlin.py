@@ -2,11 +2,24 @@ import requests
 import fileinput
 import shutil
 import json
-import stat
 import re
 import os
 
 from subprocess import Popen, PIPE
+
+    
+def stopGremlinServer():
+    gremlinServer="/opt/gremlin/bin/gremlin-server.sh"
+    output = Popen([gremlinServer, 'stop'], stdout=PIPE).communicate()[0]
+    s = output.decode("utf-8").split('\t')
+    return s[0]
+
+def startGremlinServer():
+    gremlinServer="/opt/gremlin/bin/gremlin-server.sh"
+    output = Popen([gremlinServer, 'start'], stdout=PIPE).communicate()[0]
+    s = output.decode("utf-8").split('\t')
+    return s[0]
+
 
 class MyGremlin:
     def __init__(self, dbName, serverName):
@@ -22,13 +35,6 @@ class MyGremlin:
         self.confProperties = "conf/{s}_{d}.properties".format(s=serverName, d=dbName)
         self.graphName = "{s}_{d}_graph".format(s=serverName, d=dbName)
         self.gName = "{s}_{d}_g".format(s=serverName, d=dbName)
-        
-    def restartServer(self):
-        gremlinServer="/opt/gremlin/bin/gremlin-server.sh"
-        output = Popen([gremlinServer, 'stop'], stdout=PIPE).communicate()[0]
-        output = Popen([gremlinServer, 'start'], stdout=PIPE).communicate()[0]
-        s = output.decode("utf-8").split('\t')
-        return s[0]
     
     def sizedb(self):
         """
@@ -42,19 +48,23 @@ class MyGremlin:
         """
         createDB 
         """  
-        # create mkdir
+        # create location for database
         if not os.path.exists(self.location):
-            os.makedirs(self.location, exist_ok=True)
+            os.makedirs(self.location)
         else:
             print("[WARN] DB already exists.")
             return False
-            
+      
+        stopGremlinServer()
+        
         # edit /opt/gremlin/conf/gremlin-server.yaml
         yamlf= self.path + self.confYaml
-        with open(yamlf, "rb+") as f:
-            f.seek(-2,os.SEEK_END)
-            f.truncate()
-            f.write(",\n  {graph}: {confP} }}".format(graph=self.graphName, confP=self.confProperties).encode('utf-8'))
+            
+        textToSearch="  graph: conf/tinkergraph-empty.properties}"
+        textToReplace="  {graph}: {confP},\n{orig}".format(graph=self.graphName, confP=self.confProperties, orig=textToSearch)
+        with fileinput.FileInput(files=(yamlf), inplace=True, backup='.bak') as f:
+            for line in f:
+                print(line.replace(textToSearch, textToReplace), end='')
                 
         # edit /opt/gremlin/scripts/empty-sample.groovy
         groovyf= self.path + self.confGroovy
@@ -70,34 +80,35 @@ class MyGremlin:
             f.truncate()
             f.write("/{}".format(self.dbName).encode('utf-8'))
             
-        # restartovat server
-        self.restartServer()
+        startGremlinServer()
         return True
 
     def dropDB(self):
         """
         dropDB 
         """ 
+        stopGremlinServer()
+        
         # smazat /tmp/{}/{}
         if os.path.exists(self.location):
             shutil.rmtree(self.location)
         else:
             print("[WARN] DB doesn't exist.")
             return False
-        
+            
         # edit /opt/gremlin/conf/gremlin-server.yaml
         yamlf= self.path + self.confYaml
-        textToSearch=",\n  {graph}: {confP} }}".format(graph=self.graphName, confP=self.confProperties)
+        textToSearch="  {graph}: {confP},\n".format(graph=self.graphName, confP=self.confProperties)
         textToReplace=""
-        with fileinput.FileInput(yamlf, inplace=True, backup='.bak') as f:
+        with fileinput.FileInput(files=(yamlf), inplace=True, backup='.bak') as f:
             for line in f:
                 print(line.replace(textToSearch, textToReplace), end='')
                 
         # edit /opt/gremlin/scripts/empty-sample.groovy
         groovyf= self.path + self.confGroovy
-        textToSearch="\nglobals << [{g}: {graph}.traversal()]".format(g=self.gName,graph=self.graphName)
+        textToSearch="globals << [{g}: {graph}.traversal()]\n".format(g=self.gName,graph=self.graphName)
         textToReplace=""
-        with fileinput.FileInput(groovyf, inplace=True, backup='.bak') as f:
+        with fileinput.FileInput(files=(groovyf), inplace=True, backup='.bak') as f:
             for line in f:
                 print(line.replace(textToSearch, textToReplace), end='')
         
@@ -105,9 +116,9 @@ class MyGremlin:
         propertiesf= self.path + self.confProperties
         if os.path.exists(propertiesf):
             os.remove(propertiesf)
-        # restartovat server
-        self.restartServer()
-        return False
+            
+        startGremlinServer()
+        return True
 
     def importJSON(self, importFile):
         """
@@ -136,7 +147,7 @@ class MyGremlin:
             com = regexG.sub(self.gName, com)
             data = '{{ "gremlin": "{}" , "language":"gremlin-groovy"}}'.format(com)
             if __debug__:
-                print(">>>> GREMLIN-SERVER request: -X POST {url}{db} -d {data}".format(url=self.url, db=self.dbName, data=data))                   
+                print(">>>> GREMLIN-SERVER request: curl -X POST -d \"{data}\" {url}{db} ".format(url=self.url, db=self.dbName, data=data))                   
             res = requests.post(self.url, data=data) 
             if not res or res.status_code!=200 :
                 print("WARN: Gremlin-server failed for command {res}:'{com}'".format(res=res, com=com))
@@ -149,7 +160,7 @@ class MyGremlin:
         if __debug__:
             print(">>>> Gremlin-server run commands: OK")
         return True
-
+    
 def main():
     graph = MyGremlin("d", "neo4j")
     graph.createDB()

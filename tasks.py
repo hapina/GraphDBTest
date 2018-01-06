@@ -19,14 +19,14 @@ def usage(ctx):
 @task
 def clean(ctx):
     """ Clean environment
+        - stop Gremlin server
         - drop data from graph databases
         - delete data from monitoring database
         
         Example: invoke clean
     """
-    run('rm -r /temp/gremlin_databases/')
-    run('cd graphdbtest && python3 cleanMonitoringDB.py')
-
+    run('/opt/gremlin/bin/gremlin-server.sh stop && rm -rf /temp/gremlin_databases/ && cd graphdbtest && python3 cleanMonitoringDB.py')
+    
 @task
 def install(ctx, database=None, version=None):
     """ Install graph database and prepare enviroment for testing
@@ -78,33 +78,33 @@ def conf(ctx):
         run('cd graphdbtest && python3 insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=conf))
     
 @task
-def debug(ctx, experimentConfig=None, graphDatabaseName=None):
+def debug(ctx, experiment=None, database=None):
     """ Run experiment in debug mode
         Duplicity with invoke start, but you can see more information in terminal
         - both arguments are mandatory 
-        - graphDatabaseName: name of graph database 
-        - experimentConfig: experiment configuration file from directory /config
+        - database: name of graph database 
+        - experiment: experiment configuration file from directory /config
         
-        Example: invoke debug -d orientdb -e /e_select_001.conf
+        Example: invoke debug -d orientdb -e e_select_001.conf
     """
-    if not graphDatabaseName or not experimentConfig:
+    if not database or not experiment:
         error(101, "Not found mandatory arguments", "debug")
-    run('python3 graphdbtest/insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=experimentConfig))
-    runExperiment(ctx, graphDatabaseName, experimentConfig)
+    run('python3 graphdbtest/insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=experiment))
+    runExperiment(ctx, database, experiment)
     
 @task
-def start(ctx, experimentConfig=None, graphDatabaseName=None):
+def start(ctx, experiment=None, database=None):
     """ Run graph database experiment
         - both arguments are mandatory 
-        - graphDatabaseName: name of graph database 
-        - experimentConfig: experiment configuration file from directory /config
+        - database: name of graph database 
+        - experiment: experiment configuration file from directory /config
         
         Example: invoke start -d orientdb -e /e_select_001.conf
     """
-    if not graphDatabaseName or not experimentConfig:
+    if not database or not experiment:
         error(101, "Not found mandatory arguments", "start")
-    run('python3 graphdbtest/insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=experimentConfig))
-    runExperiment(ctx, graphDatabaseName, experimentConfig, False)
+    run('python3 graphdbtest/insertConf.py {dir} {conf}'.format(dir=CONF_DIR,conf=experiment))
+    runExperiment(ctx, database, experiment, False)
     
 @task
 def test(ctx, database=None):
@@ -126,8 +126,9 @@ def test(ctx, database=None):
     else:
         databases = GRAPH_DATABASES
     i=0
-    for cf in configs:
-        for db in databases:
+    
+    for db in databases:
+        for cf in configs:
             i+=1
             print("INFO: Test no. {i}, {db}, {cf}".format(i=i,db=db,cf=cf))
             start(ctx, cf, db)

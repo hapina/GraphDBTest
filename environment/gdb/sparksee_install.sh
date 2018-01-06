@@ -14,7 +14,7 @@ location=/temp/gremlin_databases/sparksee
 
 cat <<< "[INFO] Install ${artifactId^}"
 cd /opt/gremlin/
-ins=`bin/gremlin-server.sh install $groupId $artifactId $version`
+ins=`/opt/gremlin/bin/gremlin-server.sh stop && bin/gremlin-server.sh install $groupId $artifactId $version`
 
 [[ -z $ins ]] || echo "[ERR] Install ${artifactId^}:  $ins"
 
@@ -49,3 +49,5 @@ gremlin.graph=$graphPath
 gremlin.sparksee.directory=$location
 EOF`
 [[ -z $conf ]] && cat <<< "[INFO] Installed succeed"
+status=`/opt/gremlin/bin/gremlin-server.sh start`
+cat <<< "[INFO] Gremlin server: $status"

@@ -231,9 +231,9 @@ class Monitoring:
             self.dbConnection.close()
     
     def cleanDB(self):
-        databases = [self.gdbTab, self.confTab, self.expTab, self.iteTab, self.valTab]
+        databases = {self.valTab, self.iteTab, self.expTab, self.confTab, self.gdbTab}  
         for db in databases:
-            self.execute('DROP TABLE {}'.format(db))
+            self.execute('TRUNCATE TABLE {} CASCADE'.format(db))
         
 
 def main():
