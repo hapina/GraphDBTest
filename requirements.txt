@@ -1,12 +1,3 @@
-gremlinpython==3.3.0
-invoke==0.21.0
 psycopg2==2.7.3.2
-pyorient==1.5.5
 requests==2.12.4
 matplotlib==2.0.0
-numexpr==2.6.1
-numpy==1.12.1
-pandas==0.19.2
-scipy==0.18.1
-seaborn==0.7.1
-gremlinpy==3.7.0
