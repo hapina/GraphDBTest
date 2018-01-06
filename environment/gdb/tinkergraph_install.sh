@@ -10,7 +10,7 @@ artifactId=blueprints-core
 version=$1
 tmpConfig=conf/${graphName}_x.properties 
 graphPath=org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
-location=/temp/gremlin_databases/${graphName}
+#graphPath=com.tinkerpop.blueprints.impls.tg.TinkerGraph
 
 cat <<< "[INFO] Install ${artifactId^}"
 cd /opt/gremlin/
@@ -46,7 +46,7 @@ conf=`cat > $tmpConfig <<EOF
 # gremlin-server.sh -i $groupId $artifactId $version
 #
 gremlin.graph=$graphPath
-gremlin.tinkergraph.directory=$location
+gremlin.tinkergraph.vertexIdManager=LONG
 EOF`
 [[ -z $conf ]] && cat <<< "[INFO] Installed succeed"
 status=`/opt/gremlin/bin/gremlin-server.sh start`

@@ -5,6 +5,7 @@ import sys
 
 GRAPH_DATABASES=['orientdb', 'neo4j'] 
 CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
+CONF_DIR_ORIENTDB=os.path.dirname(os.path.realpath(__file__)) + '/config_orientdb/'
 
 @task
 def usage(ctx):
@@ -25,10 +26,10 @@ def clean(ctx):
         
         Example: invoke clean
     """
-    run('/opt/gremlin/bin/gremlin-server.sh stop && rm -rf /temp/gremlin_databases/ && cd graphdbtest && python3 cleanMonitoringDB.py')
+    run('/opt/gremlin/bin/gremlin-server.sh stop && rm -rf /temp/gremlin_databases/ && rm -rf /opt/gremlin/ && cd graphdbtest && python3 cleanMonitoringDB.py')
     
 @task
-def install(ctx, database=None, version=None):
+def install(ctx, database=None):
     """ Install graph database and prepare enviroment for testing
         - install graph database 
         - prepare and set database for testing
@@ -40,23 +41,22 @@ def install(ctx, database=None, version=None):
         run('invoke --help install')
     if database == 'orientdb':    
         description = 'OrientDB, document-graph database'
-        version = 'v2.2'
+        version = 'v2.2' #'2.4.0' 
     elif database == 'sparksee':    
         description = 'Sparksee, high-performance graph database'
-        if not version:
-            version = '2.6.0'
+        version = '2.6.0'
     elif database == 'bitsy':    
         description = 'Bitsy, small and fast in-memory graph database'
-        if not version:
-            version = '1.5.2'
+        version = '1.5.2'
     elif database == 'neo4j':    
-        description = 'Neo4j, The internet-scale graph platform'
-        if not version:
-            version = '3.3.1'
+        description = 'Neo4j, the internet-scale graph platform'
+        version = '3.3.1'
+    elif database == 'tinkergraph':    
+        description = 'TinkerGraph, lightweight in-memory property graph'
+        version = '2.6.0'
     elif database == 'arangodb':    
         description = 'Arango DB, native multi-model database'
-        if not version:
-            version = 'v3.3'
+        version = 'v3.3'
     else:
         print("WARN: Unsupported database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
         error()
@@ -187,7 +187,11 @@ def runExperiment(ctx, db=None, ex=None, debug=True):
     options=""
     if not debug:
         options += "-O"
-    run('cd graphdbtest && python3 {opts} runtest.py -d {db} -e {ex}'.format(opts=options, db=db, ex=CONF_DIR+ex) )    
+    if db == 'orientdb':
+        confDir = CONF_DIR_ORIENTDB
+    else:
+        confDir = CONF_DIR
+    run('cd graphdbtest && python3 {opts} runtest.py -d {db} -e {ex}'.format(opts=options, db=db, ex=confDir+ex) )    
 
 def error(errorCode=1, errorMessage=None, task=None):
     """ End task with error
