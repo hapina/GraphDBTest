@@ -4,7 +4,7 @@ import os
 import sys
 
 GRAPH_DATABASES=['orientdb','sparksee', 'bitsy', 'neo4j', 'arangodb'] 
-CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
+CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config_origin/'
 
 @task
 def usage(ctx):

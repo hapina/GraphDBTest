@@ -30,6 +30,6 @@ sudo usermod -a -G orientuser orientuser
 sudo cp orientdb/bin/orientdb.sh /etc/init.d/
 sudo sed -i "s|YOUR_ORIENTDB_INSTALLATION_PATH|/opt/orientdb|;s|USER_YOU_WANT_ORIENTDB_RUN_WITH|orientuser|" /etc/init.d/orientdb.sh
 
-sudo $GraphDBTest_home/orientdb_server.sh
+sudo ${$GraphDBTest_home/orientdb_server.sh} &
 
 echo "DONE"
