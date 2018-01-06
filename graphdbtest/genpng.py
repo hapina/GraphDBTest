@@ -1,9 +1,30 @@
 import sys
 import getopt
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 from monitoring.monitoring import Monitoring 
+
+def generateSelect(databases, experiment, fileName):
+    m = Monitoring()
+    for db in databases:
+        data = m.getGraphData(experiment, db)
+        plt.plot(data, label=db)
+    plt.title("Type of experiment: SELECT")
+    plt.xlabel("Number of iteration")
+    plt.ylabel("Time in seconds")
+    plt.legend()
+    plt.savefig(fileName)
+    print("INFO: PNG file was created - {}".format(fileName))   
+    
+def generateInsert(databases, experiment, fileName):
+    m = Monitoring()
+    for db in databases:
+        data = m.getGraphData(experiment, db)
+        plt.plot(data, label=db)
+    plt.title("Type of experiment: INSERT")
+    plt.savefig(fileName)
+    print("INFO: PNG file was created - {}".format(fileName))  
+
 
 def main():
     #------------------------------ Processing input arguments     
@@ -34,17 +55,12 @@ def main():
             assert False, "unhandled option."
         
     #------------------------------ Generate data for plotting
-    m = Monitoring()
-    for db in databases:
-        data = m.getGraphData(experiment, db)
-        #print("{}: {}".format(db,data))
-        plt.plot(data, label=db)
-    plt.title("Type of experiment: {}".format(command.upper()))
-    plt.xlabel("Number of iteration")
-    plt.ylabel("Time in seconds")
-    plt.legend()
-    plt.savefig(fileName)
-    print("INFO: PNG file was created - {}".format(fileName))
+    if command == 'select':
+        generateSelect(databases, experiment, fileName)
+    elif command == 'insert':
+        generateInsert(databases, experimnet, fileName)
+    else:
+        print("Not implemented yet.")
     
 if __name__ == "__main__":
 	main()
