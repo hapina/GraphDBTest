@@ -4,7 +4,7 @@ import os
 import sys
 
 GRAPH_DATABASES=['orientdb', 'neo4j'] 
-CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config_origin/'
+CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
 
 @task
 def usage(ctx):
@@ -116,7 +116,6 @@ def test(ctx, database=None):
     print("INFO: Configuration checking")
     conf(ctx)
     print("INFO: RUN TESTING")
-    configs = sorted(os.listdir(CONF_DIR))
     if database:
         if database in GRAPH_DATABASES:
             databases = [database]
@@ -126,7 +125,7 @@ def test(ctx, database=None):
     else:
         databases = GRAPH_DATABASES
     i=0
-    
+    configs = sorted(os.listdir(CONF_DIR))
     for db in databases:
         for cf in configs:
             i+=1
@@ -163,25 +162,24 @@ def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=
     run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
         
 @task
-def png(ctx, command=None, database=None, experiment=None, fileName=None, query=None):
+def png(ctx, command=None, database=None, experiment=None, query=None, fileName=None):
     """ Generate graph in PNG file 
         
         Example: invoke png
                  invoke png -f /path/fig.png
     """
+    if not command:
+        command = 'select'
     if not fileName:
-        fileName = "/tmp/fig_{}.png".format(time.strftime("%Y-%m-%d'T'%H:%M:%S"))
+        fileName = "/tmp/fig_{c}_{t}.png".format(t=time.strftime("%Y-%m-%d'T'%H:%M:%S"),c=command)
     options = params = ""
-
-    if command:
-        params += " -c {}".format(command)
     if database:
         params += " -d {}".format(database) 
     if experiment:
         params += " -e {}".format(experiment)
     if query:
         params += ' -q "{}"'.format(query)
-    run("cd graphdbtest && python3 {opts} genpng.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
+    run("cd graphdbtest && python3 {opts} genpng.py {par} -c {co} -f {fn}".format(opts=options, par=params, co=command, fn=fileName))
     
 def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 

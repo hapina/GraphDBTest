@@ -13,15 +13,17 @@ def main():
         print (err)
         sys.exit(2)
         
-    command = database = experiment = query = fileName = None
-    dbLabel = "All database"
+    command = query = None
+    databases = ['orientdb', 'neo4j']
+    fileName = "/tmp/fig.png"
+    experiment = "003_select.conf"
     data = ""
     
     for o, a in opts:
         if o in ("-c", "--command"):
             command = a
         elif o in ("-d", "--database"):
-            database = dbLabel = a
+            databases = [a]
         elif o in ("-e", "--experiment"):
             experiment = a
         elif o in ("-f", "--file"):
@@ -33,12 +35,13 @@ def main():
         
     #------------------------------ Generate data for plotting
     m = Monitoring()
-    data = m.getGraphData(database)
-    #print(data)
-    plt.plot(data, color='blue', label=dbLabel)
-    plt.title("Experiment: run_time")
-    plt.xlabel("number of iteration")
-    plt.ylabel("run_time (seconds)")
+    for db in databases:
+        data = m.getGraphData(experiment, db)
+        #print("{}: {}".format(db,data))
+        plt.plot(data, label=db)
+    plt.title("Type of experiment: {}".format(command.upper()))
+    plt.xlabel("Number of iteration")
+    plt.ylabel("Time in seconds")
     plt.legend()
     plt.savefig(fileName)
     print("INFO: PNG file was created - {}".format(fileName))

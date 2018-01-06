@@ -204,7 +204,7 @@ class Monitoring:
         print("INFO: Report query: \n\n'{}'\n".format(query))
         return query
     
-    def getGraphData(self, command=None, database=None, experiment=None, versionDB=None):
+    def getGraphData(self, experiment=None, database=None, versionDB=None):
         condition = "status='OK'"
         if experiment:
             condition += " AND conf.conf_name='{}'".format(experiment)
@@ -212,12 +212,9 @@ class Monitoring:
             condition += " AND gr.gdb_name='{}'".format(database)
         if versionDB:
             condition += " AND gr.gdb_version='{}'".format(versionDB)
-        if command:
-            condition += " AND ty.type_name='{}'".format(command)
             
-        query = TMP_PNG_DATA.format(cond=condition)
+        query = REPORT_PNG_DATA.format(cond=condition, val='run_time')
         print("INFO: Report query: \n\n'{}'\n".format(query))
-        print("WARN: Only prototype with static query for now!")
         return self.execute(query)
     
     def copyToCSV(self, query, csvFile):
