@@ -7,9 +7,9 @@
 graphName=orientdb
 groupId=com.tinkerpop.blueprints
 artifactId=blueprints-orient-graph
-version=2.4.0   #$1
+version=$1
 tmpConfig=conf/${graphName}_x.properties 
-graphPath=com.tinkerpop.blueprints.impls.orient.OrientGraph
+graphPath=org.apache.tinkerpop.gremlin.orientdb.OrientGraph
 location=/temp/gremlin_databases/${graphName}
 
 cat <<< "[INFO] Install ${artifactId^}"

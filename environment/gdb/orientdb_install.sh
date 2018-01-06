@@ -6,12 +6,10 @@ Version=$1
 
 cd /opt
 
-# verze 2.2.29, 2.2.31, unstable 3.0.0RC1
-[[ $Version == v2.0 ]] && sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-2.2.29.zip
+# verze 2.2.31, unstable 3.0.0RC1
 [[ $Version == v2.2 ]] && sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-2.2.31.zip  
 [[ $Version == v3.0 ]] && sudo tar -zxvf $GraphDBTest_home/downloads/orientdb-community-importers-3.0.0RC1.tar.gz  
 sudo rm -f orientdb
-[[ $Version == v2.0 ]] && sudo ln -s /opt/orientdb-community-importers-2.2.29/ /opt/orientdb
 [[ $Version == v2.2 ]] && sudo ln -s /opt/orientdb-community-importers-2.2.31/ /opt/orientdb
 [[ $Version == v3.0 ]] && sudo ln -s /opt/orientdb-community-importers-3.0.0RC1/ /opt/orientdb
 
