@@ -17,17 +17,15 @@ sudo rm -f orientdb
 sudo sed -i "s/<storages>/<storages><storage path='memory:temp' name='temp' userName='admin' userPassword='admin' loaded-at-startup='true' \/>/" /opt/orientdb/config/orientdb-server-config.xml
 sudo sed -i "s/<users>/<users><user name='orientuser' password='password' resources='*' \/>/" /opt/orientdb/config/orientdb-server-config.xml
 sudo sed -i "s/ORIENTDB_OPTS_MEMORY=\"-Xms2G -Xmx2G/ORIENTDB_OPTS_MEMORY=\"-Xms128m -Xmx256m/" /opt/orientdb/bin/server.sh
+sudo sed -i "s/YOUR_ORIENTDB_INSTALLATION_PATH/\/opt\/orientdb/;s/USER_YOU_WANT_ORIENTDB_RUN_WITH/orientuser/" /opt/orientdb/bin/orientdb.sh
 
 sudo chmod 640 /opt/orientdb/config/orientdb-server-config.xml
-sudo useradd -d /opt/orientdb -M -r -s /bin/false -U orientuser
+sudo useradd -d /opt/orientdb -M -r -s /bin/bash -U orientuser
 sudo chown -R orientuser.orientuser /opt/orientdb*
 sudo chmod 775 /opt/orientdb/bin
 sudo chmod g+x /opt/orientdb/bin/*.sh
 sudo usermod -a -G orientuser orientuser
 
-#sudo cp orientdb/bin/orientdb.sh /etc/init.d/
-#sudo sed -i "s|YOUR_ORIENTDB_INSTALLATION_PATH|/opt/orientdb|;s|USER_YOU_WANT_ORIENTDB_RUN_WITH|orientuser|" /etc/init.d/orientdb.sh
-
 #cat<<<"[INFO] For start server use $GraphDBTest_home/orientdb_server.sh start"
-$GraphDBTest_home/orientdb_server.sh start &
+/opt/orientdb/bin/orientdb.sh start
 
