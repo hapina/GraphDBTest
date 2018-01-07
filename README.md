@@ -1,4 +1,5 @@
 # Graph Database Test 
+Set of tools for performing experiments with graph databases.
 
 ## Prepare environment: 
  * `$ cd GraphDBTest` - all commands call from main directory
