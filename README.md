@@ -1,12 +1,12 @@
 # Graph Database Test 
-Set of tools for performing experiments with graph databases.
+Testing tool of graph databases.
 
 ## Prepare environment: 
- * `$ cd GraphDBTest` - all commands call from main directory
+ * `$ cd GraphDBTest` - all commands must be called from the main directory
  * `$ ./install.sh` - install environment
 
 ## Install and run graph database: 
-Environment supports only some graph database, use help for more information.
+Environment supports only selected graph databases, use help for more information.
 * `$ invoke install --database <database>` - installation of a graph database
 * `$ inv install -d <database>` - short version of the installation command above 
 * `$ invoke --help install` - more info
@@ -14,51 +14,51 @@ Environment supports only some graph database, use help for more information.
 * `$ inv install -d orientdb` - install OrientDB
 
 #### Note: 
-Read the logs, some database can have its own requirements. For example way to start database server. 
+Read the logs, some databases can have its own requirements. For example way to start database server. 
 
 ## Prepare experiments configuration:
 There are some experiments prepared for use. 
 
-However you can modify them or create new experiments.
-All configuration file for setting experiment must be in `GraphDBTest/config/` directory. 
-#### The mandatory parameters for all types of experiments are:
+However you can modify them or even create whole new experiment sets.
+All the configuration files for experiment setting must be placed in the `GraphDBTest/config/` directory. 
+#### The mandatory parameters for any experiment are:
 * `experiment_type` - can have these values: 
   * `select` - a gremlin query
   * `insert` - a gremlin insert command
   * `delete` - a gremlin delete command
   * `import` and `export` - import and export database using JSON 
   * `create` and `drop` - create and drop database
-* `db_name` - database name `MovieDatabase`
+* `db_name` - database name, ie. `MovieDatabase`
 
 ## Run all experiments:
-You can run all of experiments from `/config` directory with particular database or all of databases that you installed before. 
+You can run all the experiments predefined in the `/config` directory with particular database or all of the databases that you have installed. 
 * `$ invoke test --database <database>` or `$ inv test -d <database>`
 * `$ invoke --help test` - more info
 #### Example:
 * `$ inv test` - for all databases
-* `$ inv test -d orientdb` - all tests only for OrientDB
+* `$ inv test -d orientdb` - will run the tests only for OrientDB
 
 ## Generate CSV file:
-Generate reports about testing to CSV file. There is prepared default report which you can modify adding more conditions or you can prepare your own report.   
-* `$ invoke csv --database <database> --experiment <experiment> --command <experiment_type> --fileName <file>` - default report with more conditions
+Generate reports about the testing to CSV file. You can modify the output of the report by adding more conditions or you can create your own report instead of the default one.
+* `$ invoke csv --database <database> --experiment <experiment> --command <experiment_type> --fileName <file>` - default report with more conditions added
 * `$ invoke csv --query <query> --fileName <file>` - your own report 
 * `$ invoke --help csv` - more info
 #### Example:
-* `$ inv csv` - generate full default report to default fileName
-* `$ inv csv -q "select * from experiment"` - generate your own report to default fileName
+* `$ inv csv` - generate default report with timestamp based name
+* `$ inv csv -q "select * from experiment" -f /path/report_OrientDB.csv` - generate your own report into the given directory
 #### Note:
-Notice the SQL command is used without semicolon.
+Notice that SQL command is used without the semicolon.
 
 ## Generate a charts to PNG file:
-Generate a interesting charts from testing of graph database. You can generate all default charts to default or choose what you want. 
+Generate interesting charts from the testing of the graph databases. You can generate all of them or choose the exact database, location or command type.
 * `$ invoke png --database <database> --command <experiment_type> --fileName <file>` 
 * `$ invoke --help png` - more info
 #### Example:
-* `$ inv png` - all default charts generate to default fileName
-* `$ inv png -d orientdb -c select -f /path/fig.png` - generate select chart only for orientdb to defined file 
+* `$ inv png` - all default charts are generated to default location with timestamp based name
+* `$ inv png -d orientdb -c select -f /path/fig.png` - generates chart with select type command used only for orientdb to defined filee 
 
 ## Run only one experiment and debug mode
-If you want run olny one experiment defined in `config` you can use `invoke --help start` for more info.
+If you want to run only one experiment defined in `/config` you can use `invoke --help start` for more info.
 There is also debug mode - `invoke --help debug` for more info.
 
 ## Clean environment
