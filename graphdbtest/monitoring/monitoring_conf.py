@@ -18,8 +18,6 @@ MONITORING_EXP_TABLE = "EXPERIMENT"
 MONITORING_ITE_TABLE = "ITERATION"
 MONITORING_VAL_TABLE = "MEASUREMENT_VALUE"
 
-TMP_PNG_DATA = "SELECT mv.value FROM measurement_value AS mv LEFT JOIN iteration AS it ON it.iter_id=mv.iter_id WHERE mv.meas_id = 1"
-
 REPORT_PNG_DATA = "SELECT "\
 "(SELECT mv.value "\
 "    FROM measurement_value AS mv "\
@@ -63,14 +61,14 @@ REPORT_ITERATION = "SELECT it.iter_id AS \"ID\","\
 "    LEFT JOIN types AS ty ON ty.meas_id=m.meas_id "\
 "    WHERE mv.iter_id = it.iter_id "\
 "    AND ty.conf_id = conf.conf_id "\
-"    AND m.meas_name = 'size') AS \"DB Size\", "\
+"    AND m.meas_name = 'size') AS \"DB Size(KB)\", "\
 "(SELECT mv.value "\
 "    FROM measurement_value AS mv "\
 "    LEFT JOIN measurement AS m ON m.meas_id=mv.meas_id "\
 "    LEFT JOIN types AS ty ON ty.meas_id=m.meas_id "\
 "    WHERE mv.iter_id = it.iter_id "\
 "    AND ty.conf_id = conf.conf_id "\
-"    AND m.meas_name = 'size_after') AS \"DB Size after\" "\
+"    AND m.meas_name = 'size_after') AS \"DB Size after(KB)\" "\
 "FROM iteration AS it "\
 "LEFT JOIN experiment AS ex ON ex.exper_id=it.exper_id "\
 "LEFT JOIN graphdb AS gr ON gr.gdb_id=ex.gdb_id "\
