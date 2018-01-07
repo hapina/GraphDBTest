@@ -10,6 +10,7 @@ apt-get -y install curl
 # install python and its dependencies
 apt-get -y install python3
 apt-get -y install python3-pip
+apt-get -y install python3-tk
 
 # python3 tools
 pip3 install invoke

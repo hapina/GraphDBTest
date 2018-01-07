@@ -4,8 +4,10 @@ import os
 import sys
 
 GRAPH_DATABASES=['orientdb', 'neo4j'] 
-CONF_DIR=os.path.dirname(os.path.realpath(__file__)) + '/config/'
-CONF_DIR_ORIENTDB=os.path.dirname(os.path.realpath(__file__)) + '/config_orientdb/'
+TYPE_EXPERIMENT=['select', 'insert', 'import', 'create']
+DIR=os.path.dirname(os.path.realpath(__file__))
+CONF_DIR='{}/config/'.format(DIR)
+CONF_DIR_ORIENTDB='{}/config_orientdb/'.format(DIR)
 
 @task
 def usage(ctx):
@@ -61,8 +63,8 @@ def install(ctx, database=None):
         print("WARN: Unsupported database: {db} \n\t You can use this databases {mygdb}".format(db=database, mygdb=GRAPH_DATABASES))
         error()
         
-    run('./environment/gdb/{db}_install.sh {ver}'.format(ver=version, db=database))
     run('cd graphdbtest && python3 insertgdb.py {db} {ver} "{des}"'.format(ver=version, db=database, des=description))
+    run('{dir}/environment/gdb/{db}_install.sh {ver}'.format(dir=DIR,ver=version, db=database))
 
 @task
 def conf(ctx):
@@ -162,24 +164,26 @@ def csv(ctx, command=None, database=None, experiment=None, fileName=None, query=
     run("cd graphdbtest && python3 {opts} gencsv.py {par} -f {fn}".format(opts=options, par=params, fn=fileName))
         
 @task
-def png(ctx, command=None, database=None, experiment=None, query=None, fileName=None):
+def png(ctx, command=None, database=None, fileName=None):
     """ Generate graph in PNG file 
         
         Example: invoke png
                  invoke png -f /path/fig.png
     """
-    if not command:
-        command = 'select'
-    if not fileName:
-        fileName = "/tmp/fig_{c}_{t}.png".format(t=time.strftime("%Y-%m-%d'T'%H:%M:%S"),c=command)
+    if command:
+        commands = [command]
+    else:
+        commands = TYPE_EXPERIMENT
     options = params = ""
     if database:
         params += " -d {}".format(database) 
-    if experiment:
-        params += " -e {}".format(experiment)
-    if query:
-        params += ' -q "{}"'.format(query)
-    run("cd graphdbtest && python3 {opts} genpng.py {par} -c {co} -f {fn}".format(opts=options, par=params, co=command, fn=fileName))
+    
+    for com in commands:
+        if fileName:
+            fn = fileName
+        else:
+            fn = "/tmp/fig_{c}_{t}.png".format(t=time.strftime("%Y-%m-%d'T'%H:%M:%S"),c=com)
+        run("cd graphdbtest && python3 {opts} genpng.py {par} -c {co} -f {fn}".format(opts=options, par=params, co=com, fn=fn))
     
 def runExperiment(ctx, db=None, ex=None, debug=True):
     """ Starts the experiment for the set database 
