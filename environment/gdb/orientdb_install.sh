@@ -26,6 +26,5 @@ sudo chmod 775 /opt/orientdb/bin
 sudo chmod g+x /opt/orientdb/bin/*.sh
 sudo usermod -a -G orientuser orientuser
 
-#cat<<<"[INFO] For start server use $GraphDBTest_home/orientdb_server.sh start"
 /opt/orientdb/bin/orientdb.sh start
 

@@ -18,7 +18,37 @@ MONITORING_EXP_TABLE = "EXPERIMENT"
 MONITORING_ITE_TABLE = "ITERATION"
 MONITORING_VAL_TABLE = "MEASUREMENT_VALUE"
 
-REPORT_PNG_DATA = "SELECT "\
+REPORT_PNG_DATA_SELECT = "SELECT "\
+"(SELECT mv.value "\
+"    FROM measurement_value AS mv "\
+"    LEFT JOIN measurement AS m ON m.meas_id=mv.meas_id "\
+"    LEFT JOIN types AS ty ON ty.meas_id=m.meas_id "\
+"    WHERE mv.iter_id = it.iter_id "\
+"    AND ty.conf_id = conf.conf_id "\
+"    AND m.meas_name = '{val}') AS \"Value\" "\
+"FROM iteration AS it "\
+"LEFT JOIN experiment AS ex ON ex.exper_id=it.exper_id "\
+"LEFT JOIN graphdb AS gr ON gr.gdb_id=ex.gdb_id "\
+"LEFT JOIN configuration AS conf ON conf.conf_id=ex.conf_id "\
+"WHERE {cond} "\
+"ORDER BY it.iter_id"
+
+REPORT_PNG_DATA_INSERT_CREATE = "SELECT gr.gdb_name AS \"Graph database\","\
+"(SELECT mv.value "\
+"    FROM measurement_value AS mv "\
+"    LEFT JOIN measurement AS m ON m.meas_id=mv.meas_id "\
+"    LEFT JOIN types AS ty ON ty.meas_id=m.meas_id "\
+"    WHERE mv.iter_id = it.iter_id "\
+"    AND ty.conf_id = conf.conf_id "\
+"    AND m.meas_name = '{val}') AS \"Value\" "\
+"FROM iteration AS it "\
+"LEFT JOIN experiment AS ex ON ex.exper_id=it.exper_id "\
+"LEFT JOIN graphdb AS gr ON gr.gdb_id=ex.gdb_id "\
+"LEFT JOIN configuration AS conf ON conf.conf_id=ex.conf_id "\
+"WHERE {cond} "\
+"ORDER BY it.iter_id"
+
+REPORT_PNG_DATA_IMPORT_EXPORT = "SELECT gr.gdb_name AS \"Graph database\","\
 "(SELECT mv.value "\
 "    FROM measurement_value AS mv "\
 "    LEFT JOIN measurement AS m ON m.meas_id=mv.meas_id "\

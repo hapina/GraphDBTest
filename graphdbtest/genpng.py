@@ -8,7 +8,7 @@ from monitoring.monitoring import Monitoring
 def generateSelect(databases, experiment, fileName):
     m = Monitoring()
     for db in databases:
-        data = m.getGraphData(experiment, db)
+        data = m.getGraphDataSelect(experiment, db)
         plt.plot(data, label=db)
     plt.title("Type of experiment: SELECT ({})".format(experiment))
     plt.xlabel("Number of iteration")
@@ -18,9 +18,8 @@ def generateSelect(databases, experiment, fileName):
     print("INFO: PNG file was created - {}".format(fileName))   
     
 def generateInsert(experiment, fileName):
-    #m = Monitoring()
-    #data = m.getGraphData(experiment)
-    data = {u'Neo4j':26, u'ArangoDB': 17, u'OrientDB':30}
+    m = Monitoring()
+    data = dict(m.getGraphDataInsert(experiment))
     plt.bar(range(len(data)), data.values(), align='center')
     plt.xticks(range(len(data)), data.keys())
     plt.title("Type of experiment: INSERT ({})".format(experiment))
@@ -30,9 +29,12 @@ def generateInsert(experiment, fileName):
     print("INFO: PNG file was created - {}".format(fileName))  
 
 def generateImportExport(experiments, fileName):
-    #m = Monitoring()
-    #data = m.getGraphData(experiment)
-    data = {'Neo4j':(26,10), 'ArangoDB': (17,30), 'OrientDB': (30,23)}
+    m = Monitoring()
+    data = dict()
+    for experiment in experiments:
+        data = dict(m.getGraphDataImportExport(experiment))
+    print(data)
+    data = {'Neo4j':(26,10), 'OrientDB': (30,23)}
     labels=('import','export')
     dim = 2
     w = 0.75
@@ -50,9 +52,8 @@ def generateImportExport(experiments, fileName):
     print("INFO: PNG file was created - {}".format(fileName))  
     
 def generateCreate(experiment, fileName):
-    #m = Monitoring()
-    #data = m.getGraphData(experiment)
-    data = {u'Neo4j':265.000, u'ArangoDB': 174.000, u'OrientDB': 130.000}
+    m = Monitoring()
+    data = dict(m.getGraphDataCreate(experiment))
     plt.bar(range(len(data)), data.values(), align='center')
     plt.xticks(range(len(data)), data.keys())
     plt.title("Type of experiment: CREATE ({})".format(experiment))
