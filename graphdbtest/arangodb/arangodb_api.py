@@ -35,8 +35,6 @@ class ArangoDB:
         res = requests.get(self.url + self.size, auth=(self.user , self.password)) 
         systemInfo = json.loads(res.text)['server']
         size = json.loads(res.text)['server']['physicalMemory']
-        print(systemInfo)
-        print(size)
         return size
 
     def isDatabaseExist(self, name = None):
@@ -83,13 +81,29 @@ class ArangoDB:
         """
         importJSON 
         """ 
-        print("WARN: ArangoDB: Not implemented yet.")
+        data = '{{ "name": "{}" }}'.format(self.dbName)
+        res = requests.post(self.url + self.importdb, data=data, auth=(self.user , self.password)) 
+        status = (True if (res.status_code==201) else False)
+        if __debug__:
+            if status:
+                print(">>> ArangoDB import database: OK")
+            else:
+                print(">>> ArangoDB import database: {}".format(res.text))
+        return status
         
     def exportJSON(self, path="/tmp"):
         """
         exportJSON
         """
-        print("WARN: ArangoDB: Not implemented yet.")
+        data = '{{ "name": "{}" }}'.format(self.dbName)
+        res = requests.post(self.url + self.export + "?collection=" , data=data, auth=(self.user , self.password)) 
+        status = (True if (res.status_code==201) else False)
+        if __debug__:
+            if status:
+                print(">>> ArangoDB export database: OK")
+            else:
+                print(">>> ArangoDB export database: {}".format(res.text))
+        return status
         
     def runCommands(self, commands):
         """

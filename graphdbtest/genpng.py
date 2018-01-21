@@ -32,9 +32,7 @@ def generateImportExport(experiments, fileName):
     m = Monitoring()
     data = dict()
     for experiment in experiments:
-        data = dict(m.getGraphDataImportExport(experiment))
-    print(data)
-    data = {'Neo4j':(26,10), 'OrientDB': (30,23)}
+        data = {k:[v, data[k]] if k in data else v for (k,v) in m.getGraphDataImportExport(experiment)}
     labels=('import','export')
     dim = 2
     w = 0.75
@@ -46,7 +44,7 @@ def generateImportExport(experiments, fileName):
     plt.xticks(range(len(data.values())), data.keys())
     plt.title("Type of experiment: IMPORT & EXPORT \n{}".format(experiments))
     plt.xlabel("Graph databases")
-    plt.ylabel("Insert time in seconds")
+    plt.ylabel("Run time in seconds")
     plt.legend()
     plt.savefig(fileName)
     print("INFO: PNG file was created - {}".format(fileName))  

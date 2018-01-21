@@ -3,7 +3,7 @@ import time
 import os
 import sys
 
-GRAPH_DATABASES=['orientdb', 'neo4j'] 
+GRAPH_DATABASES=['arangodb', 'orientdb', 'neo4j'] 
 TYPE_EXPERIMENT=['select', 'insert', 'import', 'create']
 DIR=os.path.dirname(os.path.realpath(__file__))
 CONF_DIR='{}/config/'.format(DIR)
